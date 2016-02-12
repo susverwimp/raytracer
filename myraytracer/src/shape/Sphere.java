@@ -69,12 +69,15 @@ public class Sphere extends GeometricObject {
 			if(t0 < 0){
 				t0 = t1;
 			}
-			//calculate the hitpoint
-			shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t0));
-			//calculate the normal of the hitpoint
-			Vector untransformedNormal = transformed.origin.add(transformed.direction.scale(t0)).toVector();
-			double[] transformedNormal = transformation.getInverseTransformationMatrix().transpose().multiply(untransformedNormal.toQuaternion());
-			shadeRec.normal = new Vector(transformedNormal[0], transformedNormal[1], transformedNormal[2]);
+			if(t0 < shadeRec.tMin){
+				shadeRec.tMin = t0;
+				//calculate the hitpoint
+				shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t0));
+				//calculate the normal of the hitpoint
+				Vector untransformedNormal = transformed.origin.add(transformed.direction.scale(t0)).toVector();
+				double[] transformedNormal = transformation.getInverseTransformationMatrix().transpose().multiply(untransformedNormal.toQuaternion());
+				shadeRec.normal = new Vector(transformedNormal[0], transformedNormal[1], transformedNormal[2]);
+			}
 			return true;
 		}
 		

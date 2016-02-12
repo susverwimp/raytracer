@@ -212,6 +212,7 @@ public class Renderer {
 								//set shadeRec isHit to false and the default color to zero for the next pixel
 								shadeRec.isHit = false;
 								shadeRec.color.set(0, 0, 0);
+								shadeRec.tMin = ShadeRec.tMax;
 							}else{
 								//draw backgroundcolor on panel
 								buffer.getPixel(x, y).add(BACKGROUND_COLOR);
