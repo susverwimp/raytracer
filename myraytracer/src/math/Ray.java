@@ -16,7 +16,7 @@ public class Ray implements Cloneable {
 	/**
 	 * The direction the ray is pointing to.
 	 */
-	public final Vector direction;
+	public final Vector3d direction;
 
 	/**
 	 * Creates a new {@link Ray} starting at the given origin and propagating
@@ -29,7 +29,7 @@ public class Ray implements Cloneable {
 	 * @throws NullPointerException
 	 *             when the given origin and/or direction is null.
 	 */
-	public Ray(Point origin, Vector direction) throws NullPointerException {
+	public Ray(Point origin, Vector3d direction) throws NullPointerException {
 		if (origin == null)
 			throw new NullPointerException("the given origin is null!");
 		if (direction == null)

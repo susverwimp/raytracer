@@ -278,20 +278,20 @@ public class Matrix implements Cloneable {
 	}
 
 	/**
-	 * Transforms the given {@link Vector} using this {@link Matrix}.
+	 * Transforms the given {@link Vector3d} using this {@link Matrix}.
 	 * 
 	 * @param vector
-	 *            the {@link Vector} to transform.
+	 *            the {@link Vector3d} to transform.
 	 * @throws NullPointerException
-	 *             when the given {@link Vector} is null.
-	 * @return the given {@link Vector} transformed by this {@link Matrix}.
+	 *             when the given {@link Vector3d} is null.
+	 * @return the given {@link Vector3d} transformed by this {@link Matrix}.
 	 */
-	public Vector transform(Vector vector) throws NullPointerException {
+	public Vector3d transform(Vector3d vector) throws NullPointerException {
 		double[] v = new double[3];
 		for (int row = 0; row < 3; ++row)
 			for (int column = 0; column < 3; ++column)
 				v[row] += get(row, column) * vector.get(column);
-		return new Vector(v[0], v[1], v[2]);
+		return new Vector3d(v[0], v[1], v[2]);
 	}
 
 	/**

@@ -3,7 +3,7 @@ package camera;
 import math.OrthonormalBasis;
 import math.Point;
 import math.Ray;
-import math.Vector;
+import math.Vector3d;
 import sampling.Sample;
 
 /**
@@ -51,7 +51,7 @@ public class PerspectiveCamera implements Camera {
 	 *             degrees.
 	 */
 	public PerspectiveCamera(int xResolution, int yResolution, Point origin,
-			Vector lookat, Vector up, double fov) throws NullPointerException,
+			Vector3d lookat, Vector3d up, double fov) throws NullPointerException,
 			IllegalArgumentException {
 		if (xResolution < 1)
 			throw new IllegalArgumentException("the horizontal resolution "
@@ -105,7 +105,7 @@ public class PerspectiveCamera implements Camera {
 	 *             degrees.
 	 */
 	public PerspectiveCamera(int xResolution, int yResolution, Point origin,
-			Point destination, Vector up, double fov)
+			Point destination, Vector3d up, double fov)
 			throws NullPointerException, IllegalArgumentException {
 		this(xResolution, yResolution, origin, destination.subtract(origin),
 				up, fov);
@@ -120,7 +120,7 @@ public class PerspectiveCamera implements Camera {
 		double u = width * (sample.x * invxResolution - 0.5);
 		double v = height * (sample.y * invyResolution - 0.5);
 
-		Vector direction = basis.w.add(basis.u.scale(u).add(basis.v.scale(v)));
+		Vector3d direction = basis.w.add(basis.u.scale(u).add(basis.v.scale(v)));
 
 		return new Ray(origin, direction);
 	}

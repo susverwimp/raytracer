@@ -122,21 +122,21 @@ public class Point implements Cloneable, Comparable<Point> {
 
 	/**
 	 * Constructs a {@link Point} equal to this {@link Point} translated by the
-	 * given {@link Vector}.
+	 * given {@link Vector3d}.
 	 * 
 	 * @param vector
-	 *            the {@link Vector} to add to this {@link Point}.
+	 *            the {@link Vector3d} to add to this {@link Point}.
 	 * @throws NullPointerException
-	 *             when the given {@link Vector} is null.
+	 *             when the given {@link Vector3d} is null.
 	 * @return a new {@link Point} which is equal to this {@link Point}
-	 *         translated by the given {@link Vector}.
+	 *         translated by the given {@link Vector3d}.
 	 */
-	public Point add(Vector vector) throws NullPointerException {
+	public Point add(Vector3d vector) throws NullPointerException {
 		return add(vector.x, vector.y, vector.z);
 	}
 
 	/**
-	 * Constructs the {@link Vector} spanned between this {@link Point} and the
+	 * Constructs the {@link Vector3d} spanned between this {@link Point} and the
 	 * given coordinates.
 	 * 
 	 * @param x
@@ -145,25 +145,25 @@ public class Point implements Cloneable, Comparable<Point> {
 	 *            the y coordinate.
 	 * @param z
 	 *            the z coordinate.
-	 * @return a new {@link Vector} equal to the {@link Vector} spanned between
+	 * @return a new {@link Vector3d} equal to the {@link Vector3d} spanned between
 	 *         this {@link Point} and the given coordinates.
 	 */
-	public Vector subtract(double x, double y, double z) {
-		return new Vector(this.x - x, this.y - y, this.z - z);
+	public Vector3d subtract(double x, double y, double z) {
+		return new Vector3d(this.x - x, this.y - y, this.z - z);
 	}
 
 	/**
-	 * Constructs the {@link Vector} spanned between this {@link Point} and the
+	 * Constructs the {@link Vector3d} spanned between this {@link Point} and the
 	 * given {@link Point}.
 	 * 
 	 * @param point
-	 *            the {@link Point} to span the {@link Vector} with.
+	 *            the {@link Point} to span the {@link Vector3d} with.
 	 * @throws NullPointerException
 	 *             when the given {@link Point} is null.
-	 * @return a new {@link Vector} equal to the {@link Vector} spanned between
+	 * @return a new {@link Vector3d} equal to the {@link Vector3d} spanned between
 	 *         this {@link Point} and the given {@link Point}.
 	 */
-	public Vector subtract(Point point) throws NullPointerException {
+	public Vector3d subtract(Point point) throws NullPointerException {
 		return subtract(point.x, point.y, point.z);
 	}
 
@@ -239,12 +239,12 @@ public class Point implements Cloneable, Comparable<Point> {
 	}
 
 	/**
-	 * Converts this {@link Point} to a {@link Vector}.
+	 * Converts this {@link Point} to a {@link Vector3d}.
 	 * 
-	 * @return this {@link Point} as a {@link Vector}.
+	 * @return this {@link Point} as a {@link Vector3d}.
 	 */
-	public Vector toVector() {
-		return new Vector(x, y, z);
+	public Vector3d toVector() {
+		return new Vector3d(x, y, z);
 	}
 
 	/*

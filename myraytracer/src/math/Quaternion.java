@@ -3,24 +3,24 @@ package math;
 public class Quaternion {
 	
 	/**
-	 * x coordinate of this {@link Vector}.
+	 * x coordinate of this {@link Vector3d}.
 	 */
 	public final double x;
 
 	/**
-	 * y coordinate of this {@link Vector}.
+	 * y coordinate of this {@link Vector3d}.
 	 */
 	public final double y;
 
 	/**
-	 * z coordinate of this {@link Vector}.
+	 * z coordinate of this {@link Vector3d}.
 	 */
 	public final double z;
 	
 	public final double w;
 
 	/**
-	 * Creates a {@link Vector} at the origin.
+	 * Creates a {@link Vector3d} at the origin.
 	 */
 	public Quaternion() {
 		this(0, 0, 0, 0);

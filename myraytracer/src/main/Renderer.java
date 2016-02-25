@@ -16,10 +16,13 @@ import math.RGBColor;
 import math.Ray;
 import math.ShadeRec;
 import math.Transformation;
-import math.Vector;
+import math.Vector3d;
 import sampling.Sample;
+import shape.Cube;
 import shape.GeometricObject;
+import shape.Plane;
 import shape.Sphere;
+import shape.Triangle;
 import camera.PerspectiveCamera;
 import film.FrameBuffer;
 import film.Tile;
@@ -28,6 +31,8 @@ import gui.ProgressReporter;
 import gui.RenderFrame;
 import light.Light;
 import light.PointLight;
+import loader.ModelData;
+import loader.OBJFileLoader;
 
 /**
  * Entry point of your renderer.
@@ -113,7 +118,7 @@ public class Renderer {
 		 *********************************************************************/
 
 		final PerspectiveCamera camera = new PerspectiveCamera(width, height,
-				new Point(0, 0, 0), new Point(0, 0, 1), new Vector(0, 1, 0), 90);
+				new Point(0, 0, 0), new Point(0, 0, 1), new Vector3d(0, 1, 0), 90);
 
 		// initialize the frame buffer
 		final FrameBuffer buffer = new FrameBuffer(width, height);
@@ -145,16 +150,32 @@ public class Renderer {
 				Transformation.scale(4, 4, 4));
 		Transformation t5 = Transformation.translate(-4, 4, 12).append(
 				Transformation.scale(4, 4, 4));
+		Transformation t6 = Transformation.translate(0, -8, 0);
 
 		final List<GeometricObject> shapes = new ArrayList<>();
-		shapes.add(new Sphere(t1));
-		shapes.add(new Sphere(t2));
-		shapes.add(new Sphere(t3));
-		shapes.add(new Sphere(t4));
-		shapes.add(new Sphere(t5));
+		shapes.add(new Sphere(new RGBColor(0.3, 0.7, 0.8), t1));
+		shapes.add(new Sphere(new RGBColor(0.2, 0.2, 0.8), t2));
+		shapes.add(new Sphere(new RGBColor(0.7, 0.2, 0.1), t3));
+		shapes.add(new Sphere(new RGBColor(0.7, 0.8, 0.3), t4));
+		shapes.add(new Sphere(new RGBColor(0.5, 0.4, 0.8), t5));
+		shapes.add(new Plane(new RGBColor(0.1, 0.7, 0.3), t6));
+//		shapes.add(new Cube(new RGBColor(0.7, 0.2, 0.8), new Point(-1,  -1, -1), new Point(1, 1, 1)));
+//		shapes.add(new Triangle(new RGBColor(0.8, 0.6, 0.7), new Point(-2.5, 2, 5), new Point(0, 1, 2), new Point(2.5, 2, 5)));
+		ModelData data = OBJFileLoader.loadOBJ("res/bunny.obj");
+		int[] indices = data.getIndices();
+		double[] normals = data.getNormals();
+		double[] vertices = data.getVertices();
+		for(int i = 0; i<indices.length; i+=3){
+			if(i+2 > indices.length) continue;
+			Vector3d normal0 = new Vector3d(normals[indices[i]], normals[indices[i]+1], normals[indices[i]+2]);
+			Point v0 = new Point(vertices[indices[i]], vertices[indices[i]+1], vertices[indices[i]+2]);
+			Point v1 = new Point(vertices[indices[i+1]], vertices[indices[i+1]+1], vertices[indices[i+2]+2]);
+			Point v2 = new Point(vertices[indices[i+2]], vertices[indices[i+1]+1], vertices[indices[i+2]]+2);
+//			shapes.add(new Triangle(new RGBColor(0.8, 0.6, 0.7), v0, v1, v2, normal0));
+		}
 		
 		final List<Light> lights = new ArrayList<>();
-		lights.add(new PointLight(new RGBColor(0.3, 0.8, 0.1), 3, new Point(0, 10, 0)));
+		lights.add(new PointLight(new RGBColor(0.3, 0.9, 0.8), 3, new Point(0, 15, 0)));
 
 		/**********************************************************************
 		 * Multi-threaded rendering of the scene
@@ -194,17 +215,28 @@ public class Renderer {
 							if(shadeRec.isHit){
 								//calculate color of shadeRec
 								for(Light light : lights){
-									Vector lightDirection = ((PointLight)light).origin.subtract(shadeRec.localHitPoint);
-									double cosinFactor = shadeRec.normal.dot(lightDirection) / (shadeRec.normal.length() * lightDirection.length());
-									shadeRec.color.r += 0.4*0.7*light.intensity*light.color.r*cosinFactor/Math.PI;
-									if(shadeRec.color.r > 1)
-										shadeRec.color.r = 1;
-									shadeRec.color.g += 0.4*0.2*light.intensity*light.color.g*cosinFactor/Math.PI;
-									if(shadeRec.color.g > 1)
-										shadeRec.color.g = 1;
-									shadeRec.color.b += 0.4*0.8*light.intensity*light.color.b*cosinFactor/Math.PI;
-									if(shadeRec.color.b > 1)
-										shadeRec.color.b = 1;
+									Vector3d lightDirection = ((PointLight)light).origin.subtract(shadeRec.localHitPoint);
+									//test visibility test for shadows
+									Ray shadowRay = new Ray(shadeRec.localHitPoint, lightDirection.subtract(shadeRec.localHitPoint.toVector()).normalize());
+									
+									// test the scene on intersections
+									boolean shadowIntersect = false;
+									for (GeometricObject shape : shapes){
+										if(shape.shadowIntersect(shadowRay, ((PointLight)light).origin))
+											shadowIntersect = true;
+									}
+									if(!shadowIntersect){
+										double cosinFactor = shadeRec.normal.dot(lightDirection) / (shadeRec.normal.length() * lightDirection.length());
+										shadeRec.color.r += 0.4*shadeRec.objectHit.color.r*light.intensity*light.color.r*cosinFactor/Math.PI;
+										if(shadeRec.color.r > 1)
+											shadeRec.color.r = 1;
+										shadeRec.color.g += 0.4*shadeRec.objectHit.color.g*light.intensity*light.color.g*cosinFactor/Math.PI;
+										if(shadeRec.color.g > 1)
+											shadeRec.color.g = 1;
+										shadeRec.color.b += 0.4*shadeRec.objectHit.color.b*light.intensity*light.color.b*cosinFactor/Math.PI;
+										if(shadeRec.color.b > 1)
+											shadeRec.color.b = 1;
+									}
 								}
 								//draw pixel on panel
 								buffer.getPixel(x, y).add(shadeRec.color);
