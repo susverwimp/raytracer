@@ -1,38 +1,13 @@
 package main;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-
-import math.Point;
-import math.RGBColor;
-import math.Ray;
-import math.ShadeRec;
-import math.Transformation;
+import math.Point3d;
 import math.Vector3d;
-import sampling.Sample;
-import shape.Cube;
-import shape.GeometricObject;
-import shape.Plane;
-import shape.Sphere;
-import shape.Triangle;
+import tracer.World;
 import camera.PerspectiveCamera;
 import film.FrameBuffer;
-import film.Tile;
 import gui.ImagePanel;
 import gui.ProgressReporter;
 import gui.RenderFrame;
-import light.Light;
-import light.PointLight;
-import loader.ModelData;
-import loader.OBJFileLoader;
 
 /**
  * Entry point of your renderer.
@@ -47,12 +22,9 @@ public class Renderer {
 	 * @param arguments
 	 *            command line arguments.
 	 */
-	
-	public final static RGBColor BACKGROUND_COLOR = new RGBColor(0, 0, 0);
-	
 	public static void main(String[] arguments) {
-		int width = 640;
-		int height = 640;
+		int width = 620;
+		int height = 620;
 		double sensitivity = 1.0;
 		double gamma = 2.2;
 		boolean gui = true;
@@ -118,7 +90,7 @@ public class Renderer {
 		 *********************************************************************/
 
 		final PerspectiveCamera camera = new PerspectiveCamera(width, height,
-				new Point(0, 0, 0), new Point(0, 0, 1), new Vector3d(0, 1, 0), 90);
+				new Point3d(0, 0, -5), new Point3d(0, 0, 1), new Vector3d(0, 1, 0), 90);
 
 		// initialize the frame buffer
 		final FrameBuffer buffer = new FrameBuffer(width, height);
@@ -126,7 +98,7 @@ public class Renderer {
 		// initialize the progress reporter
 		final ProgressReporter reporter = new ProgressReporter("Rendering", 40,
 				width * height, false);
-
+		
 		// initialize the graphical user interface if desired
 		final ImagePanel panel;
 		if (gui) {
@@ -137,154 +109,21 @@ public class Renderer {
 			panel = null;
 
 		/**********************************************************************
-		 * Initialize the scene
+		 * Build the world
 		 *********************************************************************/
-
-		Transformation t1 = Transformation.translate(0, 0, 10).append(
-				Transformation.scale(5, 5, 5));
-		Transformation t2 = Transformation.translate(4, -4, 12).append(
-				Transformation.scale(4, 4, 4));
-		Transformation t3 = Transformation.translate(-4, -4, 12).append(
-				Transformation.scale(4, 4, 4));
-		Transformation t4 = Transformation.translate(4, 4, 12).append(
-				Transformation.scale(4, 4, 4));
-		Transformation t5 = Transformation.translate(-4, 4, 12).append(
-				Transformation.scale(4, 4, 4));
-		Transformation t6 = Transformation.translate(0, -8, 0);
-
-		final List<GeometricObject> shapes = new ArrayList<>();
-		shapes.add(new Sphere(new RGBColor(0.3, 0.7, 0.8), t1));
-		shapes.add(new Sphere(new RGBColor(0.2, 0.2, 0.8), t2));
-		shapes.add(new Sphere(new RGBColor(0.7, 0.2, 0.1), t3));
-		shapes.add(new Sphere(new RGBColor(0.7, 0.8, 0.3), t4));
-		shapes.add(new Sphere(new RGBColor(0.5, 0.4, 0.8), t5));
-		shapes.add(new Plane(new RGBColor(0.1, 0.7, 0.3), t6));
-//		shapes.add(new Cube(new RGBColor(0.7, 0.2, 0.8), new Point(-1,  -1, -1), new Point(1, 1, 1)));
-//		shapes.add(new Triangle(new RGBColor(0.8, 0.6, 0.7), new Point(-2.5, 2, 5), new Point(0, 1, 2), new Point(2.5, 2, 5)));
-		ModelData data = OBJFileLoader.loadOBJ("res/bunny.obj");
-		int[] indices = data.getIndices();
-		double[] normals = data.getNormals();
-		double[] vertices = data.getVertices();
-		for(int i = 0; i<indices.length; i+=3){
-			if(i+2 > indices.length) continue;
-			Vector3d normal0 = new Vector3d(normals[indices[i]], normals[indices[i]+1], normals[indices[i]+2]);
-			Point v0 = new Point(vertices[indices[i]], vertices[indices[i]+1], vertices[indices[i]+2]);
-			Point v1 = new Point(vertices[indices[i+1]], vertices[indices[i+1]+1], vertices[indices[i+2]+2]);
-			Point v2 = new Point(vertices[indices[i+2]], vertices[indices[i+1]+1], vertices[indices[i+2]]+2);
-//			shapes.add(new Triangle(new RGBColor(0.8, 0.6, 0.7), v0, v1, v2, normal0));
-		}
 		
-		final List<Light> lights = new ArrayList<>();
-		lights.add(new PointLight(new RGBColor(0.3, 0.9, 0.8), 3, new Point(0, 15, 0)));
-
+		final World world = new World(camera, buffer, reporter, panel);
+		
 		/**********************************************************************
-		 * Multi-threaded rendering of the scene
+		 * Render the scene
 		 *********************************************************************/
-
-		final ExecutorService service = Executors.newFixedThreadPool(Runtime
-				.getRuntime().availableProcessors());
-
-		// subdivide the buffer in equal sized tiles
-		for (final Tile tile : buffer.subdivide(64, 64)) {
-			// create a thread which renders the specific tile
-			Thread thread = new Thread() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see java.lang.Thread#run()
-				 */
-				@Override
-				public void run() {
-					//create 1 shadeRecord
-					ShadeRec shadeRec = new ShadeRec();
-					
-					// iterate over the contents of the tile
-					for (int y = tile.yStart; y < tile.yEnd; ++y) {
-						for (int x = tile.xStart; x < tile.xEnd; ++x) {
-							// create a ray through the center of the
-							// pixel.
-							Ray ray = camera.generateRay(new Sample(x + 0.5,
-									y + 0.5));
-
-							// test the scene on intersections
-							for (GeometricObject shape : shapes){
-								shape.intersect(ray, shadeRec);
-							}
-
-							// add a color contribution to the pixel
-							if(shadeRec.isHit){
-								//calculate color of shadeRec
-								for(Light light : lights){
-									Vector3d lightDirection = ((PointLight)light).origin.subtract(shadeRec.localHitPoint);
-									//test visibility test for shadows
-									Ray shadowRay = new Ray(shadeRec.localHitPoint, lightDirection.subtract(shadeRec.localHitPoint.toVector()).normalize());
-									
-									// test the scene on intersections
-									boolean shadowIntersect = false;
-									for (GeometricObject shape : shapes){
-										if(shape.shadowIntersect(shadowRay, ((PointLight)light).origin))
-											shadowIntersect = true;
-									}
-									if(!shadowIntersect){
-										double cosinFactor = shadeRec.normal.dot(lightDirection) / (shadeRec.normal.length() * lightDirection.length());
-										shadeRec.color.r += 0.4*shadeRec.objectHit.color.r*light.intensity*light.color.r*cosinFactor/Math.PI;
-										if(shadeRec.color.r > 1)
-											shadeRec.color.r = 1;
-										shadeRec.color.g += 0.4*shadeRec.objectHit.color.g*light.intensity*light.color.g*cosinFactor/Math.PI;
-										if(shadeRec.color.g > 1)
-											shadeRec.color.g = 1;
-										shadeRec.color.b += 0.4*shadeRec.objectHit.color.b*light.intensity*light.color.b*cosinFactor/Math.PI;
-										if(shadeRec.color.b > 1)
-											shadeRec.color.b = 1;
-									}
-								}
-								//draw pixel on panel
-								buffer.getPixel(x, y).add(shadeRec.color);
-								
-								//set shadeRec isHit to false and the default color to zero for the next pixel
-								shadeRec.isHit = false;
-								shadeRec.color.set(0, 0, 0);
-								shadeRec.tMin = ShadeRec.tMax;
-							}else{
-								//draw backgroundcolor on panel
-								buffer.getPixel(x, y).add(BACKGROUND_COLOR);
-							}
-						}
-					}
-
-					// update the graphical user interface
-					if (panel != null)
-						panel.update(tile);
-
-					// update the progress reporter
-					reporter.update(tile.getWidth() * tile.getHeight());
-				}
-			};
-			service.submit(thread);
-		}
-
-		// execute the threads
-		service.shutdown();
-
-		// wait until the threads have finished
-		try {
-			service.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// signal the reporter that the task is done
-		reporter.done();
+		
+		world.renderScene();
 
 		/**********************************************************************
 		 * Export the result
 		 *********************************************************************/
 
-		BufferedImage result = buffer.toBufferedImage(sensitivity, gamma);
-		try {
-			ImageIO.write(result, "png", new File("output.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		world.exportResult(sensitivity, gamma);
 	}
 }

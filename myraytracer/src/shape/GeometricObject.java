@@ -1,19 +1,22 @@
 package shape;
 
-import math.Point;
-import math.RGBColor;
+import material.Material;
 import math.Ray;
-import math.ShadeRec;
+import util.ShadeRec;
 
 public abstract class GeometricObject {
 	
-	public RGBColor color;
+	public Material material;
+	public static final double kEpsilon = 1e-6;
 	
-	public GeometricObject(RGBColor color){
-		this.color = color;
+	public GeometricObject(Material material){
+		if(material == null)
+			throw new NullPointerException("the given material is null!");
+		this.material = material;
 	}
 	
 	public abstract boolean intersect(Ray ray, ShadeRec shadeRec);
-	public abstract boolean shadowIntersect(Ray ray, Point lightPosition);
-
+	public abstract boolean shadowHit(Ray shadowRay, double distance);
+	
+	
 }

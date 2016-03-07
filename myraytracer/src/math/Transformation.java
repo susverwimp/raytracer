@@ -87,31 +87,31 @@ public class Transformation implements Cloneable {
 	}
 
 	/**
-	 * Transforms the given {@link Point} with this {@link Transformation}.
+	 * Transforms the given {@link Point3d} with this {@link Transformation}.
 	 * 
 	 * @param point
-	 *            the {@link Point} to transform.
+	 *            the {@link Point3d} to transform.
 	 * @throws NullPointerException
-	 *             when the given {@link Point} is null.
-	 * @return the given {@link Point} transformed by this
+	 *             when the given {@link Point3d} is null.
+	 * @return the given {@link Point3d} transformed by this
 	 *         {@link Transformation}.
 	 */
-	public Point transform(Point point) throws NullPointerException {
+	public Point3d transform(Point3d point) throws NullPointerException {
 		return matrix.transform(point);
 	}
 
 	/**
-	 * Transforms the given {@link Point} with the inverse of this
+	 * Transforms the given {@link Point3d} with the inverse of this
 	 * {@link Transformation}.
 	 * 
 	 * @param point
-	 *            the {@link Point} to transform.
+	 *            the {@link Point3d} to transform.
 	 * @throws NullPointerException
-	 *             when the given {@link Point} is null.
-	 * @return the given {@link Point} transformed by the inverse of this
+	 *             when the given {@link Point3d} is null.
+	 * @return the given {@link Point3d} transformed by the inverse of this
 	 *         {@link Transformation}.
 	 */
-	public Point transformInverse(Point point) throws NullPointerException {
+	public Point3d transformInverse(Point3d point) throws NullPointerException {
 		return inverse.transform(point);
 	}
 
@@ -154,7 +154,7 @@ public class Transformation implements Cloneable {
 	 * @return the given {@link Ray} transformed by this {@link Transformation}.
 	 */
 	public Ray transform(Ray ray) throws NullPointerException {
-		Point point = transform(ray.origin);
+		Point3d point = transform(ray.origin);
 		Vector3d direction = transform(ray.direction);
 		return new Ray(point, direction);
 	}
@@ -171,7 +171,7 @@ public class Transformation implements Cloneable {
 	 *         {@link Transformation}.
 	 */
 	public Ray transformInverse(Ray ray) throws NullPointerException {
-		Point point = transformInverse(ray.origin);
+		Point3d point = transformInverse(ray.origin);
 		Vector3d direction = transformInverse(ray.direction);
 		return new Ray(point, direction);
 	}

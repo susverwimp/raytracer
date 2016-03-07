@@ -2,8 +2,6 @@ package film;
 
 import java.util.Locale;
 
-import math.RGBColor;
-
 /**
  * Representation of a {@link Pixel} which contains a weighted sum of
  * {@link RGBSpectrum}s.
@@ -67,11 +65,6 @@ public class Pixel {
 	public void add(double red, double green, double blue)
 			throws IllegalArgumentException {
 		add(red, green, blue, 1.0);
-	}
-	
-	public void add(RGBColor color)
-			throws IllegalArgumentException {
-		add(color.r, color.g, color.b, 1.0);
 	}
 
 	/**

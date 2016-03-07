@@ -262,18 +262,18 @@ public class Matrix implements Cloneable {
 	}
 
 	/**
-	 * Transforms the given {@link Point} using this {@link Matrix}.
+	 * Transforms the given {@link Point3d} using this {@link Matrix}.
 	 * 
 	 * @param point
-	 *            the {@link Point} to transform.
+	 *            the {@link Point3d} to transform.
 	 * @throws NullPointerException
-	 *             when the given {@link Point} is null.
-	 * @return the given {@link Point} transformed by this {@link Matrix}.
+	 *             when the given {@link Point3d} is null.
+	 * @return the given {@link Point3d} transformed by this {@link Matrix}.
 	 */
-	public Point transform(Point point) throws NullPointerException {
+	public Point3d transform(Point3d point) throws NullPointerException {
 		double[] homogenous = point.toHomogenousArray();
 		double[] transformed = multiply(homogenous);
-		return new Point(transformed[0], transformed[1], transformed[2],
+		return new Point3d(transformed[0], transformed[1], transformed[2],
 				transformed[3]);
 	}
 

@@ -1,7 +1,7 @@
 package camera;
 
 import math.OrthonormalBasis;
-import math.Point;
+import math.Point3d;
 import math.Ray;
 import math.Vector3d;
 import sampling.Sample;
@@ -13,7 +13,7 @@ import sampling.Sample;
  * @version 0.2
  */
 public class PerspectiveCamera implements Camera {
-	private final Point origin;
+	private final Point3d origin;
 	private final OrthonormalBasis basis;
 
 	private final double width;
@@ -50,7 +50,7 @@ public class PerspectiveCamera implements Camera {
 	 *             when the field of view is larger than or equal to 180
 	 *             degrees.
 	 */
-	public PerspectiveCamera(int xResolution, int yResolution, Point origin,
+	public PerspectiveCamera(int xResolution, int yResolution, Point3d origin,
 			Vector3d lookat, Vector3d up, double fov) throws NullPointerException,
 			IllegalArgumentException {
 		if (xResolution < 1)
@@ -67,7 +67,7 @@ public class PerspectiveCamera implements Camera {
 					+ "larger than or equal to 180 degrees!");
 
 		this.origin = origin;
-		this.basis = new OrthonormalBasis(lookat, up);
+		this.basis = new OrthonormalBasis(lookat.scale(-1), up);
 
 		invxResolution = 1.0 / (double) xResolution;
 		invyResolution = 1.0 / (double) yResolution;
@@ -104,8 +104,8 @@ public class PerspectiveCamera implements Camera {
 	 *             when the field of view is larger than or equal to 180
 	 *             degrees.
 	 */
-	public PerspectiveCamera(int xResolution, int yResolution, Point origin,
-			Point destination, Vector3d up, double fov)
+	public PerspectiveCamera(int xResolution, int yResolution, Point3d origin,
+			Point3d destination, Vector3d up, double fov)
 			throws NullPointerException, IllegalArgumentException {
 		this(xResolution, yResolution, origin, destination.subtract(origin),
 				up, fov);
@@ -120,7 +120,7 @@ public class PerspectiveCamera implements Camera {
 		double u = width * (sample.x * invxResolution - 0.5);
 		double v = height * (sample.y * invyResolution - 0.5);
 
-		Vector3d direction = basis.w.add(basis.u.scale(u).add(basis.v.scale(v)));
+		Vector3d direction = basis.u.scale(u).add(basis.v.scale(v)).subtract(basis.w);
 
 		return new Ray(origin, direction);
 	}

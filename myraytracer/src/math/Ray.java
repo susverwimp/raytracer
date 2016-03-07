@@ -2,7 +2,7 @@ package math;
 
 /**
  * Represents an {@link Ray} in three dimensional space starting at a given
- * {@link Point} and extending infinitely in a given direction.
+ * {@link Point3d} and extending infinitely in a given direction.
  * 
  * @author Niels Billen
  * @version 1.0
@@ -11,7 +11,7 @@ public class Ray implements Cloneable {
 	/**
 	 * The origin of the ray.
 	 */
-	public final Point origin;
+	public final Point3d origin;
 
 	/**
 	 * The direction the ray is pointing to.
@@ -29,7 +29,7 @@ public class Ray implements Cloneable {
 	 * @throws NullPointerException
 	 *             when the given origin and/or direction is null.
 	 */
-	public Ray(Point origin, Vector3d direction) throws NullPointerException {
+	public Ray(Point3d origin, Vector3d direction) throws NullPointerException {
 		if (origin == null)
 			throw new NullPointerException("the given origin is null!");
 		if (direction == null)

@@ -291,12 +291,12 @@ public class Vector3d implements Cloneable, Comparable<Vector3d> {
 	}
 
 	/**
-	 * Converts this {@link Vector3d} to a {@link Point}.
+	 * Converts this {@link Vector3d} to a {@link Point3d}.
 	 * 
-	 * @return this {@link Vector3d} as a {@link Point}.
+	 * @return this {@link Vector3d} as a {@link Point3d}.
 	 */
-	public Point toPoint() {
-		return new Point(x, y, z);
+	public Point3d toPoint() {
+		return new Point3d(x, y, z);
 	}
 
 	/**
