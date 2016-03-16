@@ -5,7 +5,6 @@ import math.Point3d;
 import math.Ray;
 import math.Vector3d;
 import shape.GeometricObject;
-import util.ShadeRec;
 
 public abstract class MeshTriangle extends GeometricObject {
 
@@ -22,19 +21,31 @@ public abstract class MeshTriangle extends GeometricObject {
 		this.index1 = index1;
 		this.index2 = index2;
 	}
-
+	
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
 		Point3d v0 = (mesh.vertices[index0]);
 		Point3d v1 = (mesh.vertices[index1]);
 		Point3d v2 = (mesh.vertices[index2]);
 
-	    double a = v0.x - v1.x, b = v0.x - v2.x, c = shadowRay.direction.x, d = v0.x - shadowRay.origin.x;
-	    double e = v0.y - v1.y, f = v0.y - v2.y, g = shadowRay.direction.y, h = v0.y - shadowRay.origin.y;
-	    double i = v0.z - v1.z, j = v0.z - v2.z, k = shadowRay.direction.z, l = v0.z - shadowRay.origin.z;
+	    double a = v0.x - v1.x;
+	    double b = v0.x - v2.x;
+	    double c = shadowRay.direction.x;
+	    double d = v0.x - shadowRay.origin.x;
+	    double e = v0.y - v1.y; 
+	    double f = v0.y - v2.y; 
+	    double g = shadowRay.direction.y;
+	    double h = v0.y - shadowRay.origin.y;
+	    double i = v0.z - v1.z;
+	    double j = v0.z - v2.z;
+	    double k = shadowRay.direction.z;
+	    double l = v0.z - shadowRay.origin.z;
 
-	    double m = f * k - g * j, n = h * k - g * l, p = f * l - h * j;
-	    double q = g * i - e * k, s = e * j - f * i;
+	    double m = f * k - g * j; 
+		double n = h * k - g * l; 
+		double p = f * l - h * j;
+		double q = g * i - e * k; 
+		double s = e * j - f * i;
 
 	    double inv_denom  = 1.0 / (a * m + b * q + c * s);
 
@@ -61,6 +72,24 @@ public abstract class MeshTriangle extends GeometricObject {
 	        return false;
 
 	    return (true);
+	}
+	
+	public void computeNormal(boolean reverseNormal){
+		normal = mesh.vertices[index1].subtract(mesh.vertices[index0]).cross(mesh.vertices[index2].subtract(mesh.vertices[index0])).normalize();
+		if(reverseNormal)
+			normal = normal.scale(-1);
+	}
+	
+	public double interpolateU(double beta, double gamma) {
+	    return (1 - beta - gamma) * mesh.u[index0]
+	            + beta * mesh.u[index1]
+	            + gamma * mesh.u[index2];
+	}
+	
+	public double interpolateV(double beta, double gamma){
+		return (1 - beta - gamma) * mesh.v[index0]
+	            + beta * mesh.v[index1]
+	            + gamma * mesh.v[index2];
 	}
 
 }

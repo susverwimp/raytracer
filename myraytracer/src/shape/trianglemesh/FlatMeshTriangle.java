@@ -3,14 +3,13 @@ package shape.trianglemesh;
 import material.Material;
 import math.Point3d;
 import math.Ray;
-import math.Vector3d;
 import util.ShadeRec;
 
 public class FlatMeshTriangle extends MeshTriangle {
 
 	public FlatMeshTriangle(Mesh mesh, int index0, int index1, int index2, Material material) {
 		super(mesh, index0, index1, index2, material);
-		normal = mesh.normals[index0];
+		computeNormal(false);
 	}
 
 	@Override

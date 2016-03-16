@@ -5,12 +5,12 @@ public class Vector2d {
 	/**
 	 * x coordinate of this {@link Vector3d}.
 	 */
-	public final double x;
+	public double x;
 
 	/**
 	 * y coordinate of this {@link Vector3d}.
 	 */
-	public final double y;
+	public double y;
 	
 	public Vector2d() {
 		this(0, 0);
@@ -31,5 +31,19 @@ public class Vector2d {
 		this.y = y;
 	}
 
+	public double getX() {
+		return x;
+	}
 
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
+	}
 }

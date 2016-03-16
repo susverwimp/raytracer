@@ -5,7 +5,6 @@ import math.Vector3d;
 import shape.trianglemesh.Mesh;
 
 public class ModelData {
-	private double[] textureCoords;
 	private int[] indices;
 	private double furthestPoint;
 	public Mesh mesh;
@@ -20,14 +19,15 @@ public class ModelData {
 		for(int i = 0; i < normals.length; i+=3){
 			normalsInVectors[i/3] = new Vector3d(normals[i], normals[i+1], normals[i+2]);
 		}
-		mesh = new Mesh(verticesInPoints, normalsInVectors);
-		this.textureCoords = textureCoords;
+		double[] u = new double[textureCoords.length / 2];
+		double[] v = new double[textureCoords.length / 2];
+		for(int i = 0; i < textureCoords.length; i+= 2){
+			u[i/2] = textureCoords[i];
+			v[i/2] = textureCoords[i+1];
+		}
+		mesh = new Mesh(verticesInPoints, normalsInVectors, u, v);
 		this.indices = indices;
 		this.furthestPoint = furthestPoint;
-	}
-
-	public double[] getTextureCoords() {
-		return textureCoords;
 	}
 
 	public int[] getIndices() {

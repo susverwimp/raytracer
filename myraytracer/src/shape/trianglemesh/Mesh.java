@@ -12,9 +12,11 @@ public class Mesh {
 	public int numberOfVertices;
 	public int numberOfTriangles;
 	
-	public Mesh(Point3d[] vertices, Vector3d[] normals){
+	public Mesh(Point3d[] vertices, Vector3d[] normals, double[] u, double[] v){
 		this.vertices = vertices;
 		this.normals = normals;
+		this.u = u;
+		this.v = v;
 	}
 	
 }

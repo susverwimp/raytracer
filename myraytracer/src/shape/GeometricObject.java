@@ -10,8 +10,6 @@ public abstract class GeometricObject {
 	public static final double kEpsilon = 1e-6;
 	
 	public GeometricObject(Material material){
-		if(material == null)
-			throw new NullPointerException("the given material is null!");
 		this.material = material;
 	}
 	

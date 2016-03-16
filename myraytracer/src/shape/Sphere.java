@@ -14,22 +14,14 @@ import util.ShadeRec;
  * @version 0.2
  */
 public class Sphere extends GeometricObject {
-	public final Transformation transformation;
 
 	/**
 	 * Creates a new unit {@link Sphere} at the origin, transformed by the given
 	 * {@link Transformation}.
 	 * 
-	 * @param transformation
-	 *            the transformation applied to this {@link Sphere}.
-	 * @throws NullPointerException
-	 *             when the transformation is null.
 	 */
-	public Sphere(Transformation transformation, Material material) {
+	public Sphere(Material material) {
 		super(material);
-		if (transformation == null)
-			throw new NullPointerException("the given origin is null!");
-		this.transformation = transformation;
 	}
 
 	/*
@@ -39,12 +31,10 @@ public class Sphere extends GeometricObject {
 	 */
 	@Override
 	public boolean intersect(Ray ray, ShadeRec shadeRec) {
-		Ray transformed = transformation.transformInverse(ray);
+		Vector3d o = ray.origin.toVector();
 
-		Vector3d o = transformed.origin.toVector();
-
-		double a = transformed.direction.dot(transformed.direction);
-		double b = 2.0 * (transformed.direction.dot(o));
+		double a = ray.direction.dot(ray.direction);
+		double b = 2.0 * (ray.direction.dot(o));
 		double c = o.dot(o) - 1.0;
 
 		double d = b * b - 4.0 * a * c;
@@ -73,10 +63,7 @@ public class Sphere extends GeometricObject {
 			// calculate the hitpoint
 			shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t0));
 			// calculate the normal of the hitpoint
-			Vector3d untransformedNormal = transformed.origin.add(transformed.direction.scale(t0)).toVector();
-			double[] transformedNormal = transformation.getInverseTransformationMatrix().transpose()
-					.multiply(untransformedNormal.toQuaternion());
-			shadeRec.normal = new Vector3d(transformedNormal[0], transformedNormal[1], transformedNormal[2]);
+			shadeRec.normal = shadeRec.localHitPoint.toVector();
 			return true;
 		}
 		return false;
@@ -84,12 +71,10 @@ public class Sphere extends GeometricObject {
 
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
-		Ray transformed = transformation.transformInverse(shadowRay);
+		Vector3d o = shadowRay.origin.toVector();
 
-		Vector3d o = transformed.origin.toVector();
-
-		double a = transformed.direction.dot(transformed.direction);
-		double b = 2.0 * (transformed.direction.dot(o));
+		double a = shadowRay.direction.dot(shadowRay.direction);
+		double b = 2.0 * (shadowRay.direction.dot(o));
 		double c = o.dot(o) - 1.0;
 
 		double d = b * b - 4.0 * a * c;

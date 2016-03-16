@@ -30,7 +30,8 @@ public class PointLight extends Light {
 
 	@Override
 	public RGBColor L(ShadeRec shadeRec) {
-		return color.scale(ls);
+		double distance = location.subtract(shadeRec.localHitPoint).length();
+		return color.scale(ls/(4*Math.PI * Math.pow(distance, 2)));
 	}
 
 	@Override

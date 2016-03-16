@@ -4,6 +4,7 @@ import material.Material;
 import math.Point3d;
 import math.RGBColor;
 import math.Ray;
+import math.Vector2d;
 import math.Vector3d;
 import tracer.World;
 
@@ -15,6 +16,7 @@ public class ShadeRec {
 	public Point3d hitPoint;
 	public Point3d localHitPoint;
 	public Vector3d normal;
+	public Vector2d textureCoords;
 	public RGBColor color;
 	public Ray ray;
 	public int depth;
@@ -29,6 +31,7 @@ public class ShadeRec {
 		normal = new Vector3d();
 		color = new RGBColor();
 		direction = new Vector3d();
+		textureCoords = new Vector2d();
 	}
 
 }
