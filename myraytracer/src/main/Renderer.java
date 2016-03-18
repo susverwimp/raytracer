@@ -28,6 +28,7 @@ public class Renderer {
 		double sensitivity = 1.0;
 		double gamma = 2.2;
 		boolean gui = true;
+		boolean falseColor = true;
 
 		/**********************************************************************
 		 * Parse the command line arguments
@@ -118,8 +119,10 @@ public class Renderer {
 		 * Render the scene
 		 *********************************************************************/
 		
-//		world.renderScene();
-		world.renderFalseColor();
+		if(!falseColor)
+			world.renderScene();
+		else
+			world.renderFalseColor();
 
 		/**********************************************************************
 		 * Export the result

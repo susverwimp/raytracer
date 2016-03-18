@@ -17,7 +17,6 @@ public class BoundingVolume extends Compound {
 		Point3d p0 = getMinCoordinates();
 		Point3d p1 = getMaxCoordinates();
 		boundingBox = new BBox(p0, p1);
-		System.out.println(boundingBox);
 	}
 	
 	public Point3d getMinCoordinates(){

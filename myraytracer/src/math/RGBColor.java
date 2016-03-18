@@ -18,6 +18,12 @@ public class RGBColor {
 		this.b = b;
 	}
 	
+	public RGBColor(RGBColor color){
+		this.r = color.r;
+		this.g = color.g;
+		this.b = color.b;
+	}
+	
 	public RGBColor scale(double scalar){
 		return new RGBColor(r*scalar, g*scalar, b*scalar);
 	}

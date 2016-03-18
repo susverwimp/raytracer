@@ -64,7 +64,7 @@ public class Sphere extends GeometricObject {
 			shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t0));
 			// calculate the normal of the hitpoint
 			shadeRec.normal = shadeRec.localHitPoint.toVector();
-			System.out.println(shadeRec.normal);
+			shadeRec.totalIntersections++;
 			return true;
 		}
 		return false;

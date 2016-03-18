@@ -33,6 +33,7 @@ import sampling.Sample;
 import shape.GeometricObject;
 import shape.Instance;
 import shape.Plane;
+import shape.Sphere;
 import shape.trianglemesh.Mesh;
 import shape.trianglemesh.SmoothUVMeshTriangle;
 import texture.Checker3D;
@@ -47,24 +48,23 @@ public class World {
 	private final ProgressReporter reporter;
 	private final ImagePanel panel;
 
-	private Tracer tracer;
+	private Tracer rayCastTracer;
 	public RGBColor backgroundColor;
 	public Light ambient;
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final boolean OUT_OF_GAMUT = true;
-	public static final boolean SHOW_BVH = false;
+	private static final RGBColor falseColor1 = new RGBColor(0, 0, 1);
+	private static final RGBColor falseColor2 = new RGBColor(0, 1, 0);
 
-	public static final RGBColor falseColor1 = new RGBColor(0, 0, 1);
-	public static final RGBColor falseColor2 = new RGBColor(0, 1, 0);
+	private static final boolean OUT_OF_GAMUT = true;
 
 	public World(Camera camera, FrameBuffer buffer, ProgressReporter reporter, ImagePanel panel) {
 		this.camera = camera;
 		this.buffer = buffer;
 		this.reporter = reporter;
 		this.panel = panel;
-		this.tracer = new RayCast(this);
+		this.rayCastTracer = new RayCast(this);
 		this.backgroundColor = new RGBColor();
 		this.ambient = new Ambient();
 		build();
@@ -80,27 +80,25 @@ public class World {
 		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
 
 		// create a world sphere
-		// try {
-		// Sphere sphere = new Sphere(null);
-		// BufferedImage image = null;
-		// image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-		// SVMatte imageMatte = new SVMatte(
-		// new ImageTexture(image.getWidth(), image.getHeight(), image, new
-		// SphericalMap()));
-		// imageMatte.setKA(0);
-		// imageMatte.setKD(0.7);
-		//
-		// SVPhong imagePhong = new SVPhong(new ImageTexture(image.getWidth(),
-		// image.getHeight(), image, new SphericalMap()));
-		// imagePhong.setKA(0);
-		// imagePhong.setKD(0.7);
-		// imagePhong.setExp(10);
-		// imagePhong.setKS(1);
-		// shapes.add(new Instance(sphere, true, worldSphereTransformation,
-		// imagePhong));
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		try {
+			Sphere sphere = new Sphere(null);
+			BufferedImage image = null;
+			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+			SVMatte imageMatte = new SVMatte(
+					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+			imageMatte.setKA(0);
+			imageMatte.setKD(0.7);
+
+			SVPhong imagePhong = new SVPhong(
+					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+			imagePhong.setKA(0);
+			imagePhong.setKD(0.7);
+			imagePhong.setExp(10);
+			imagePhong.setKS(1);
+			shapes.add(new Instance(sphere, true, worldSphereTransformation, imagePhong));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// create a plane with black-white checkertexture
 		SVMatte checkerMatte = new SVMatte(new Checker3D(3, new RGBColor(), new RGBColor(1, 1, 1)));
@@ -109,26 +107,22 @@ public class World {
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		// create house object
-		// try {
-		// BufferedImage image = ImageIO.read(new
-		// File("res/textures/house_texture.jpg"));
-		// SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(),
-		// image.getHeight(), image, null));
-		// imageMatte.setKA(0);
-		// imageMatte.setKD(0.7);
-		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
-		// SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5,
-		// 0.5, 0.5)));
-		// colorMatte.setKA(0);
-		// colorMatte.setKD(0.7);
-		// for (int i = 0; i < mesh.indices.length; i += 3) {
-		// shapes.add(new Instance(new SmoothUVMeshTriangle(mesh,
-		// mesh.indices[i], mesh.indices[i + 1],
-		// mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		try {
+			BufferedImage image = ImageIO.read(new File("res/textures/house_texture.jpg"));
+			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+			imageMatte.setKA(0);
+			imageMatte.setKD(0.7);
+			Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
+			SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
+			colorMatte.setKA(0);
+			colorMatte.setKD(0.7);
+			for (int i = 0; i < mesh.indices.length; i += 3) {
+				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+						mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// create apple object
 		try {
@@ -185,7 +179,7 @@ public class World {
 								Ray ray = camera.generateRay(new Sample(x + 0.5, y + 0.5));
 
 								// get color to draw
-								RGBColor color = tracer.traceRay(ray);
+								RGBColor color = rayCastTracer.traceRay(ray);
 								if (OUT_OF_GAMUT)
 									maxToOne(color);
 								else
@@ -228,6 +222,7 @@ public class World {
 		/**********************************************************************
 		 * Multi-threaded rendering of the scene
 		 *********************************************************************/
+		final int[][] totalIntersections = new int[buffer.xResolution][buffer.yResolution];
 
 		final ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -242,28 +237,14 @@ public class World {
 				 */
 				@Override
 				public void run() {
-					try {
-						// iterate over the contents of the tile
-						for (int y = tile.yStart; y < tile.yEnd; ++y) {
-							for (int x = tile.xStart; x < tile.xEnd; ++x) {
-								// create a ray through the center of the
-								// pixel.
-								Ray ray = camera.generateRay(new Sample(x + 0.5, y + 0.5));
-
-								RGBColor color = new RGBColor();
-
-								// add a color contribution to the pixel
-								buffer.getPixel(x, y).add(color.r, color.g, color.b);
-							}
+					// iterate over the contents of the tile
+					for (int y = tile.yStart; y < tile.yEnd; ++y) {
+						for (int x = tile.xStart; x < tile.xEnd; ++x) {
+							// create a ray through the center of the
+							// pixel.
+							Ray ray = camera.generateRay(new Sample(x + 0.5, y + 0.5));
+							totalIntersections[x][y] = hitObjects(ray).totalIntersections;
 						}
-						// update the graphical user interface
-						if (panel != null)
-							panel.update(tile);
-
-						// update the progress reporter
-						reporter.update(tile.getWidth() * tile.getHeight());
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
 				}
 			};
@@ -279,6 +260,26 @@ public class World {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		int max = 0;
+		for (int y = 0; y < buffer.yResolution; y++) {
+			for (int x = 0; x < buffer.xResolution; x++) {
+				if (totalIntersections[x][y] > max)
+					max = totalIntersections[x][y];
+			}
+		}
+
+		for (int y = 0; y < buffer.yResolution; y++) {
+			for (int x = 0; x < buffer.xResolution; x++) {
+				RGBColor falseColor = new RGBColor(falseColor1);
+				RGBColor.add(falseColor2.scale(totalIntersections[x][y] / (double) max), falseColor);
+				// add a color contribution to the pixel
+				buffer.getPixel(x, y).add(falseColor.r, falseColor.g, falseColor.b);
+			}
+		}
+
+		if (panel != null)
+			panel.update(new Tile(buffer, 0, 0, buffer.xResolution, buffer.yResolution));
 
 		// signal the reporter that the task is done
 		reporter.done();
