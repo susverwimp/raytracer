@@ -65,7 +65,7 @@ public class SmoothMeshTriangle extends MeshTriangle {
 	    shadeRec.t = t;
 	    shadeRec.normal = interpolateNormal(beta, gamma);
 	    shadeRec.localHitPoint 	= ray.origin.add(ray.direction.scale(t));
-
+	    shadeRec.totalIntersections++;
 	    return true;
 	}
 	

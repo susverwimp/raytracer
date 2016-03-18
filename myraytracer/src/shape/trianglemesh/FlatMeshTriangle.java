@@ -65,7 +65,7 @@ public class FlatMeshTriangle extends MeshTriangle {
 		shadeRec.t = t;
 		shadeRec.normal = normal;
 		shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t));
-
+		shadeRec.totalIntersections++;
 		return true;
 	}
 

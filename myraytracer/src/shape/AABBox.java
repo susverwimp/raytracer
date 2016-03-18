@@ -88,6 +88,7 @@ public class AABBox extends GeometricObject {
 				shadeRec.normal = getNormal(faceOut);
 			}
 			shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(shadeRec.t));
+			shadeRec.totalIntersections++;
 			return true;
 		}
 		return false;

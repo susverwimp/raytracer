@@ -13,14 +13,6 @@ public class Compound extends GeometricObject {
 
 	public List<GeometricObject> objects = new ArrayList<>();
 
-	public Compound(){
-		
-	}
-	
-	public Compound(Material material) {
-		setMaterial(material);
-	}
-	
 	public void addObject(GeometricObject object){
 		objects.add(object);
 	}

@@ -66,6 +66,7 @@ public class FlatUVMeshTriangle extends FlatMeshTriangle {
 	    shadeRec.localHitPoint 	= ray.origin.add(ray.direction.scale(t));
 	    shadeRec.textureCoords.x = interpolateU(beta, gamma);
 	    shadeRec.textureCoords.y = interpolateV(beta, gamma);
+	    shadeRec.totalIntersections++;
         return true;
 	}
 
