@@ -2,6 +2,7 @@ package shape.trianglemesh;
 
 import math.Point3d;
 import math.Vector3d;
+import math.Vector3i;
 
 public class Mesh {
 	
@@ -9,14 +10,14 @@ public class Mesh {
 	public Vector3d[] normals;
 	public double[] u;
 	public double[] v;
-	public int numberOfVertices;
-	public int numberOfTriangles;
+	public Vector3i[] indices;
 	
-	public Mesh(Point3d[] vertices, Vector3d[] normals, double[] u, double[] v){
+	public Mesh(Point3d[] vertices, Vector3d[] normals, double[] u, double[] v, Vector3i[] indices){
 		this.vertices = vertices;
 		this.normals = normals;
 		this.u = u;
 		this.v = v;
+		this.indices = indices;
 	}
-	
+
 }

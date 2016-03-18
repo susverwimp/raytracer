@@ -21,7 +21,7 @@ public class Sphere extends GeometricObject {
 	 * 
 	 */
 	public Sphere(Material material) {
-		super(material);
+		this.material = material;
 	}
 
 	/*
@@ -64,6 +64,7 @@ public class Sphere extends GeometricObject {
 			shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t0));
 			// calculate the normal of the hitpoint
 			shadeRec.normal = shadeRec.localHitPoint.toVector();
+			System.out.println(shadeRec.normal);
 			return true;
 		}
 		return false;

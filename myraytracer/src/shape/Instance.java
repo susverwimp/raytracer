@@ -12,10 +12,18 @@ public class Instance extends GeometricObject {
 	public Transformation transformation;
 	
 	public Instance(GeometricObject object, boolean transformTexture, Transformation transformation, Material material) {
-		super(material);
 		this.object = object;
 		this.transformTexture = transformTexture;
 		this.transformation = transformation;
+		this.material = material;
+	}
+	
+	public BBox getBoundingBox(){
+		BBox bbox = object.getBoundingBox();
+		bbox.minPoint = transformation.transform(bbox.minPoint);
+		bbox.maxPoint = transformation.transform(bbox.maxPoint);
+		return object.getBoundingBox();
+		
 	}
 
 	@Override

@@ -12,7 +12,7 @@ public class AABBox extends GeometricObject {
 	public Point3d maxPoint;
 
 	public AABBox(Material material, Point3d minPoint, Point3d maxPoint) {
-		super(material);
+		this.material = material;
 		this.minPoint = minPoint;
 		this.maxPoint = maxPoint;
 	}

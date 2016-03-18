@@ -90,7 +90,7 @@ public class Renderer {
 		 *********************************************************************/
 
 		final PerspectiveCamera camera = new PerspectiveCamera(width, height,
-				new Point3d(0, 0, 0), new Point3d(0, 0, 1), new Vector3d(0, 1, 0), 90);
+				new Point3d(0, 0, 0), new Point3d(0, 0, -1), new Vector3d(0, 1, 0), 90);
 
 		// initialize the frame buffer
 		final FrameBuffer buffer = new FrameBuffer(width, height);
@@ -118,7 +118,8 @@ public class Renderer {
 		 * Render the scene
 		 *********************************************************************/
 		
-		world.renderScene();
+//		world.renderScene();
+		world.renderFalseColor();
 
 		/**********************************************************************
 		 * Export the result

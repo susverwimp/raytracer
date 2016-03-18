@@ -13,17 +13,17 @@ public class Vector3d implements Cloneable, Comparable<Vector3d> {
 	/**
 	 * x coordinate of this {@link Vector3d}.
 	 */
-	public final double x;
+	public double x;
 
 	/**
 	 * y coordinate of this {@link Vector3d}.
 	 */
-	public final double y;
+	public double y;
 
 	/**
 	 * z coordinate of this {@link Vector3d}.
 	 */
-	public final double z;
+	public double z;
 
 	/**
 	 * Creates a {@link Vector3d} at the origin.
@@ -101,6 +101,12 @@ public class Vector3d implements Cloneable, Comparable<Vector3d> {
 			throw new IllegalArgumentException(
 					"the given axis is out of bounds!");
 		}
+	}
+	
+	public void set(double x, double y, double z){
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	/**

@@ -25,7 +25,7 @@ public class PointLight extends Light {
 	
 	@Override
 	public Vector3d getDirection(ShadeRec shadeRec) {
-		return location.subtract(shadeRec.localHitPoint).normalize();
+		return location.subtract(shadeRec.hitPoint).normalize();
 	}
 
 	@Override

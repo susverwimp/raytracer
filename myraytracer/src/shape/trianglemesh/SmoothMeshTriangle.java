@@ -4,19 +4,20 @@ import material.Material;
 import math.Point3d;
 import math.Ray;
 import math.Vector3d;
+import math.Vector3i;
 import util.ShadeRec;
 
 public class SmoothMeshTriangle extends MeshTriangle {
 
-	public SmoothMeshTriangle(Mesh mesh, int index0, int index1, int index2, Material material) {
+	public SmoothMeshTriangle(Mesh mesh, Vector3i index0, Vector3i index1, Vector3i index2, Material material) {
 		super(mesh, index0, index1, index2, material);
 	}
 
 	@Override
 	public boolean intersect(Ray ray, ShadeRec shadeRec) {
-		Point3d v0 = mesh.vertices[index0];
-		Point3d v1 = mesh.vertices[index1];
-		Point3d v2 = mesh.vertices[index2];
+		Point3d v0 = mesh.vertices[index0.x];
+		Point3d v1 = mesh.vertices[index1.x];
+		Point3d v2 = mesh.vertices[index2.x];
 
 		double a = v0.x - v1.x;
 		double b = v0.x - v2.x;
@@ -69,7 +70,7 @@ public class SmoothMeshTriangle extends MeshTriangle {
 	}
 	
 	public Vector3d interpolateNormal(double beta, double gamma){
-		Vector3d normal = mesh.normals[index0].scale((1 - beta - gamma)).add(mesh.normals[index1].scale(beta)).add(mesh.normals[index2].scale(gamma));
+		Vector3d normal = mesh.normals[index0.z].scale((1 - beta - gamma)).add(mesh.normals[index1.z].scale(beta)).add(mesh.normals[index2.z].scale(gamma));
 		return normal.normalize();
 	}
 	

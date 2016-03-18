@@ -16,11 +16,11 @@ public class Plane extends GeometricObject {
 	}
 	
 	public Plane(Point3d pointInPlane, Vector3d normal, Material material) {
-		super(material);
 		if(pointInPlane == null)
 			throw new NullPointerException("the given point in the plane is null!");
 		if(normal == null)
 			throw new NullPointerException("the given normal is null!");
+		this.material = material;
 		this.pointInPlane = pointInPlane;
 		this.normal = normal;
 	}
@@ -35,6 +35,7 @@ public class Plane extends GeometricObject {
 				shadeRec.t = t;
 				shadeRec.normal = normal;
 				shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t));
+				shadeRec.totalIntersections++;
 				return true;
 			}
 		}

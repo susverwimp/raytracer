@@ -22,6 +22,7 @@ public class ShadeRec {
 	public int depth;
 	public Vector3d direction;
 	public World world;
+	public int totalIntersections = 0;
 	
 	public ShadeRec(World world) {
 		this.world = world;

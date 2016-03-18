@@ -1,6 +1,5 @@
 package shape;
 
-import material.Material;
 import math.Point3d;
 import math.Ray;
 import util.ShadeRec;
@@ -10,10 +9,13 @@ public class BBox extends GeometricObject {
 	public Point3d minPoint;
 	public Point3d maxPoint;
 	
-	public BBox(Material material, Point3d minPoint, Point3d maxPoint) {
-		super(material);
+	public BBox(Point3d minPoint, Point3d maxPoint) {
 		this.minPoint = minPoint;
 		this.maxPoint = maxPoint;
+	}
+	
+	public BBox(double xMin, double yMin, double zMin, double xMax, double yMax, double zMax){
+		this(new Point3d(xMin, yMin, zMin), new Point3d(xMax, yMax, zMax));
 	}
 
 	@Override
@@ -67,13 +69,15 @@ public class BBox extends GeometricObject {
 			t1 = tyMax;
 		if(tzMax < t1)
 			t1 = tzMax;
+		if(t0 < t1 && t1 > kEpsilon){
+			shadeRec.totalIntersections++;
+			return true;
+		}
 		
-		return (t0 < t1 && t1 > kEpsilon);
-	}
-
-	@Override
-	public boolean shadowHit(Ray shadowRay, double distance) {
 		return false;
 	}
-	
+	@Override
+	public String toString(){
+		return "minPoint: " + minPoint + " maxPoint: " + maxPoint;
+	}
 }

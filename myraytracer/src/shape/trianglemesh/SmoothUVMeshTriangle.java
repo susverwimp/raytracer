@@ -3,20 +3,21 @@ package shape.trianglemesh;
 import material.Material;
 import math.Point3d;
 import math.Ray;
+import math.Vector3i;
 import util.ShadeRec;
 
 public class SmoothUVMeshTriangle extends SmoothMeshTriangle {
 
-	public SmoothUVMeshTriangle(Mesh mesh, int index0, int index1, int index2,
+	public SmoothUVMeshTriangle(Mesh mesh, Vector3i index0, Vector3i index1, Vector3i index2,
 			Material material) {
 		super(mesh, index0, index1, index2, material);
 	}
 	
 	@Override
 	public boolean intersect(Ray ray, ShadeRec shadeRec) {
-		Point3d v0 = mesh.vertices[index0];
-		Point3d v1 = mesh.vertices[index1];
-		Point3d v2 = mesh.vertices[index2];
+		Point3d v0 = mesh.vertices[index0.x];
+		Point3d v1 = mesh.vertices[index1.x];
+		Point3d v2 = mesh.vertices[index2.x];
 	
 		double a = v0.x - v1.x;
 		double b = v0.x - v2.x;
@@ -66,6 +67,7 @@ public class SmoothUVMeshTriangle extends SmoothMeshTriangle {
 	    shadeRec.localHitPoint 	= ray.origin.add(ray.direction.scale(t));
 	    shadeRec.textureCoords.x = interpolateU(beta, gamma);
 	    shadeRec.textureCoords.y = interpolateV(beta, gamma);
+	    shadeRec.totalIntersections++;
 	    return true;
 	}
 }

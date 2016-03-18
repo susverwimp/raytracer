@@ -30,7 +30,7 @@ public class ImageTexture extends Texture {
 			pixelCoords.x = (int) (shadeRec.textureCoords.x * (hRes - 1));
 			pixelCoords.y = (int) (shadeRec.textureCoords.y * (vRes - 1));
 		}
-			
+		
 		int rgb = image.getRGB(pixelCoords.x, pixelCoords.y);
 		double r = ((rgb & 0x00ff0000) >> 16) / 255.0;
 		double g = ((rgb & 0x0000ff00) >> 8) / 255.0;

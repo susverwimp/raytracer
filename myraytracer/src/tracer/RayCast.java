@@ -13,9 +13,18 @@ public class RayCast extends Tracer {
 	@Override
 	public RGBColor traceRay(Ray ray) {
 		ShadeRec shadeRec = world.hitObjects(ray);
-		if(shadeRec.isHit){
-			shadeRec.ray = ray;
-			return shadeRec.material.shade(shadeRec);
+		if (shadeRec.isHit) {
+			if (World.SHOW_BVH) {
+				if(shadeRec.totalIntersections == 1)
+					return World.falseColor1;
+				else if(shadeRec.totalIntersections == 2)
+					return World.falseColor2;
+				else
+					return new RGBColor(0,0,0);
+			} else {
+				shadeRec.ray = ray;
+				return shadeRec.material.shade(shadeRec);
+			}
 		}
 		return world.backgroundColor;
 	}

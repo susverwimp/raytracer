@@ -9,12 +9,18 @@ public abstract class GeometricObject {
 	public Material material;
 	public static final double kEpsilon = 1e-6;
 	
-	public GeometricObject(Material material){
-		this.material = material;
+	public BBox getBoundingBox(){
+		return null;
 	}
 	
 	public abstract boolean intersect(Ray ray, ShadeRec shadeRec);
-	public abstract boolean shadowHit(Ray shadowRay, double distance);
+	public boolean shadowHit(Ray shadowRay, double distance){
+		return false;
+	}
+	
+	public void setMaterial(Material material){
+		this.material = material;
+	}
 	
 	
 }
