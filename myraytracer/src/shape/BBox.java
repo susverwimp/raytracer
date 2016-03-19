@@ -44,7 +44,7 @@ public class BBox extends GeometricObject {
 		}
 		
 		double c = 1.0 / ray.direction.z;
-		if(c>=0){
+		if(c<=0){
 			tzMin = (minPoint.z - ray.origin.z) * c;
 			tzMax = (maxPoint.z - ray.origin.z) * c;
 		}
@@ -69,6 +69,7 @@ public class BBox extends GeometricObject {
 			t1 = tyMax;
 		if(tzMax < t1)
 			t1 = tzMax;
+		
 		if(t0 < t1 && t1 > kEpsilon){
 			shadeRec.totalIntersections++;
 			return true;

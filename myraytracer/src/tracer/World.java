@@ -78,7 +78,7 @@ public class World {
 
 		Transformation worldSphereTransformation = Transformation.translate(-1, 0, -6);
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(-225));
-		Transformation appleTransformation = Transformation.translate(0, -1, -6).append(Transformation.rotateX(90));
+		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
 
 		// create a world sphere
 //		try {

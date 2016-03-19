@@ -2,6 +2,7 @@ package shape;
 
 import math.Point3d;
 import math.Ray;
+import math.Vector2d;
 import math.Vector3d;
 import util.ShadeRec;
 
@@ -17,7 +18,6 @@ public class BoundingVolume extends Compound {
 		Point3d p0 = getMinCoordinates();
 		Point3d p1 = getMaxCoordinates();
 		boundingBox = new BBox(p0, p1);
-		System.out.println(boundingBox);
 	}
 	
 	public Point3d getMinCoordinates(){
@@ -67,20 +67,24 @@ public class BoundingVolume extends Compound {
 		if(boundingBox.intersect(ray, shadeRec)){
 			Vector3d normal = new Vector3d();
 			Point3d localHitPoint = new Point3d();
+			Vector2d textureCoords = new Vector2d();
 			double tmin = Double.POSITIVE_INFINITY;
 			for (GeometricObject object : objects) {
 				if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
 					shadeRec.isHit = true;
 					tmin = shadeRec.t;
 					material = object.material;
-					normal = shadeRec.normal;
-					localHitPoint = shadeRec.localHitPoint;
+					normal.set(shadeRec.normal.x, shadeRec.normal.y, shadeRec.normal.z);
+					localHitPoint.set(shadeRec.localHitPoint.x, shadeRec.localHitPoint.y, shadeRec.localHitPoint.z);
+					textureCoords.setX(shadeRec.textureCoords.x);
+					textureCoords.setY(shadeRec.textureCoords.y);
 				}
 			}
 			if (shadeRec.isHit) {
 				shadeRec.t = tmin;
 				shadeRec.normal = normal;
 				shadeRec.localHitPoint = localHitPoint;
+				shadeRec.textureCoords = textureCoords;
 			}
 			
 //			return shadeRec.isHit;
