@@ -30,6 +30,7 @@ import math.Transformation;
 import math.Vector2d;
 import math.Vector3d;
 import sampling.Sample;
+import shape.BoundingVolume;
 import shape.GeometricObject;
 import shape.Instance;
 import shape.Plane;
@@ -75,57 +76,64 @@ public class World {
 		 * Initialize the scene
 		 *********************************************************************/
 
-		Transformation worldSphereTransformation = Transformation.translate(0, 0, -3);
+		Transformation worldSphereTransformation = Transformation.translate(-1, 0, -6);
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(-225));
-		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
+		Transformation appleTransformation = Transformation.translate(0, -1, -6).append(Transformation.rotateX(90));
 
 		// create a world sphere
-		try {
-			Sphere sphere = new Sphere(null);
-			BufferedImage image = null;
-			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-			SVMatte imageMatte = new SVMatte(
-					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-			imageMatte.setKA(0);
-			imageMatte.setKD(0.7);
-
-			SVPhong imagePhong = new SVPhong(
-					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-			imagePhong.setKA(0);
-			imagePhong.setKD(0.7);
-			imagePhong.setExp(10);
-			imagePhong.setKS(1);
-			shapes.add(new Instance(sphere, true, worldSphereTransformation, imagePhong));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Sphere sphere = new Sphere(null);
+//			BufferedImage image = null;
+//			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+//			SVMatte imageMatte = new SVMatte(
+//					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+//			imageMatte.setKA(0);
+//			imageMatte.setKD(0.7);
+//
+//			SVPhong imagePhong = new SVPhong(
+//					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+//			imagePhong.setKA(0);
+//			imagePhong.setKD(0.7);
+//			imagePhong.setExp(10);
+//			imagePhong.setKS(1);
+//			shapes.add(new Instance(sphere, true, worldSphereTransformation, imagePhong));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		// create a plane with black-white checkertexture
 		SVMatte checkerMatte = new SVMatte(new Checker3D(3, new RGBColor(), new RGBColor(1, 1, 1)));
 		checkerMatte.setKA(0);
 		checkerMatte.setKD(0.7);
+		
+		SVPhong checkerPhong = new SVPhong(new Checker3D(3, new RGBColor(), new RGBColor(1, 1, 1)));
+		checkerPhong.setKA(0);
+		checkerPhong.setKD(0.7);
+		checkerPhong.setExp(27);
+		checkerPhong.setKS(0.5);
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		// create house object
-		try {
-			BufferedImage image = ImageIO.read(new File("res/textures/house_texture.jpg"));
-			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-			imageMatte.setKA(0);
-			imageMatte.setKD(0.7);
-			Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
-			SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
-			colorMatte.setKA(0);
-			colorMatte.setKD(0.7);
-			for (int i = 0; i < mesh.indices.length; i += 3) {
-				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-						mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			BufferedImage image = ImageIO.read(new File("res/textures/house_texture.jpg"));
+//			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+//			imageMatte.setKA(0);
+//			imageMatte.setKD(0.7);
+//			Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
+//			SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
+//			colorMatte.setKA(0);
+//			colorMatte.setKD(0.7);
+//			for (int i = 0; i < mesh.indices.length; i += 3) {
+//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+//						mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		// create apple object
 		try {
+			BoundingVolume bvh = new BoundingVolume();
 			BufferedImage image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
 			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
 			imageMatte.setKA(0);
@@ -142,16 +150,18 @@ public class World {
 			imagePhong.setExp(27);
 			imagePhong.setKS(0.5);
 			for (int i = 0; i < mesh.indices.length; i += 3) {
-				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+				bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
 						mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
 			}
+			bvh.calculateHierarchy();
+			shapes.add(bvh);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
 	}
-
+	
 	public void renderScene() {
 		/**********************************************************************
 		 * Multi-threaded rendering of the scene

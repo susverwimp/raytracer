@@ -91,8 +91,8 @@ public abstract class MeshTriangle extends GeometricObject {
 		Point3d v3 = (mesh.vertices[index2.x]);
 
 		return new BBox(Math.min(Math.min(v1.x, v2.x), v3.x) - delta, Math.min(Math.min(v1.y, v2.y), v3.y) - delta,
-				Math.min(Math.min(v1.z, v2.z), v3.z) - delta, Math.max(Math.max(v1.x, v2.x), v3.x) + delta,
-				Math.max(Math.max(v1.y, v2.y), v3.y) + delta, Math.max(Math.max(v1.z, v2.z), v3.z) + delta);
+				Math.max(Math.max(v1.z, v2.z), v3.z) + delta, Math.max(Math.max(v1.x, v2.x), v3.x) + delta,
+				Math.max(Math.max(v1.y, v2.y), v3.y) + delta, Math.min(Math.min(v1.z, v2.z), v3.z) - delta);
 	}
 
 	public double interpolateU(double beta, double gamma) {

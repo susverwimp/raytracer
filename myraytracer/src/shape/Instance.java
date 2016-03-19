@@ -22,8 +22,8 @@ public class Instance extends GeometricObject {
 		BBox bbox = object.getBoundingBox();
 		bbox.minPoint = transformation.transform(bbox.minPoint);
 		bbox.maxPoint = transformation.transform(bbox.maxPoint);
-		return object.getBoundingBox();
 		
+		return bbox;
 	}
 
 	@Override

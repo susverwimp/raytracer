@@ -17,11 +17,12 @@ public class BoundingVolume extends Compound {
 		Point3d p0 = getMinCoordinates();
 		Point3d p1 = getMaxCoordinates();
 		boundingBox = new BBox(p0, p1);
+		System.out.println(boundingBox);
 	}
 	
 	public Point3d getMinCoordinates(){
 		BBox bbox;
-		Point3d p0 = new Point3d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+		Point3d p0 = new Point3d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
 		
 		for(GeometricObject object : objects){
 			bbox = object.getBoundingBox();
@@ -29,20 +30,20 @@ public class BoundingVolume extends Compound {
 				p0.x = bbox.minPoint.x;
 			if(bbox.minPoint.y < p0.y)
 				p0.y = bbox.minPoint.y;
-			if(bbox.minPoint.z < p0.z)
+			if(bbox.minPoint.z > p0.z)
 				p0.z = bbox.minPoint.z;
 		}
 		
 		p0.x -= kEpsilon;
 		p0.y -= kEpsilon;
-		p0.z -= kEpsilon;
+		p0.z += kEpsilon;
 		
 		return p0;
 	}
 	
 	public Point3d getMaxCoordinates(){
 		BBox bbox;
-		Point3d p0 = new Point3d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		Point3d p0 = new Point3d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		
 		for(GeometricObject object : objects){
 			bbox = object.getBoundingBox();
@@ -50,13 +51,13 @@ public class BoundingVolume extends Compound {
 				p0.x = bbox.maxPoint.x;
 			if(bbox.maxPoint.y > p0.y)
 				p0.y = bbox.maxPoint.y;
-			if(bbox.maxPoint.z > p0.z)
+			if(bbox.maxPoint.z < p0.z)
 				p0.z = bbox.maxPoint.z;
 		}
 		
 		p0.x += kEpsilon;
 		p0.y += kEpsilon;
-		p0.z += kEpsilon;
+		p0.z -= kEpsilon;
 		
 		return p0;
 	}
