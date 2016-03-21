@@ -45,5 +45,15 @@ public class Compound extends GeometricObject {
 		
 		return shadeRec.isHit;
 	}
+	
+	@Override
+	public boolean shadowHit(Ray shadowRay, double distance) {
+		for(GeometricObject object : objects){
+			if(object.shadowHit(shadowRay, distance)){
+				return true;
+			}
+		}
+		return false;
+	}
 
 }

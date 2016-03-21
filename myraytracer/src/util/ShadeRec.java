@@ -33,6 +33,7 @@ public class ShadeRec {
 		color = new RGBColor();
 		direction = new Vector3d();
 		textureCoords = new Vector2d();
+		t = Double.POSITIVE_INFINITY;
 	}
 
 }

@@ -73,5 +73,4 @@ public class SmoothMeshTriangle extends MeshTriangle {
 		Vector3d normal = mesh.normals[index0.z].scale((1 - beta - gamma)).add(mesh.normals[index1.z].scale(beta)).add(mesh.normals[index2.z].scale(gamma));
 		return normal.normalize();
 	}
-	
 }

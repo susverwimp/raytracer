@@ -1,6 +1,7 @@
 package shape;
 
 import material.Material;
+import math.Point3d;
 import math.Ray;
 import math.Transformation;
 import math.Vector3d;
@@ -104,5 +105,14 @@ public class Sphere extends GeometricObject {
 				return true;
 		}
 		return false;
+	}
+	
+	public BBox getBoundingBox() {
+		return new BBox(-1, -1, 1, 1, 1, -1);
+	};
+	
+	@Override
+	public Point3d getCenter(){
+		return new Point3d();
 	}
 }

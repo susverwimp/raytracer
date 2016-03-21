@@ -1,5 +1,7 @@
 package shape.trianglemesh;
 
+import java.util.Comparator;
+
 import material.Material;
 import math.Point3d;
 import math.Ray;
@@ -15,6 +17,7 @@ public abstract class MeshTriangle extends GeometricObject {
 	public Vector3i index1;
 	public Vector3i index2;
 	public Vector3d normal;
+	public Point3d centroid;
 
 	public MeshTriangle(Mesh mesh, Vector3i index0, Vector3i index1, Vector3i index2, Material material) {
 		this.material = material;
@@ -22,6 +25,7 @@ public abstract class MeshTriangle extends GeometricObject {
 		this.index0 = index0;
 		this.index1 = index1;
 		this.index2 = index2;
+		calculateCentroid();
 	}
 
 	@Override
@@ -90,9 +94,10 @@ public abstract class MeshTriangle extends GeometricObject {
 		Point3d v2 = (mesh.vertices[index1.x]);
 		Point3d v3 = (mesh.vertices[index2.x]);
 
-		return new BBox(Math.min(Math.min(v1.x, v2.x), v3.x) - delta, Math.min(Math.min(v1.y, v2.y), v3.y) - delta,
+		BBox b = new BBox(Math.min(Math.min(v1.x, v2.x), v3.x) - delta, Math.min(Math.min(v1.y, v2.y), v3.y) - delta,
 				Math.max(Math.max(v1.z, v2.z), v3.z) + delta, Math.max(Math.max(v1.x, v2.x), v3.x) + delta,
 				Math.max(Math.max(v1.y, v2.y), v3.y) + delta, Math.min(Math.min(v1.z, v2.z), v3.z) - delta);
+		return b;
 	}
 
 	public double interpolateU(double beta, double gamma) {
@@ -102,5 +107,17 @@ public abstract class MeshTriangle extends GeometricObject {
 	public double interpolateV(double beta, double gamma) {
 		return (1 - beta - gamma) * mesh.v[index0.y] + beta * mesh.v[index1.y] + gamma * mesh.v[index2.y];
 	}
-
+	
+	private void calculateCentroid(){
+		double xSum = (mesh.vertices[index0.x].x + mesh.vertices[index1.x].x + mesh.vertices[index2.x].x)/3;
+		double ySum = (mesh.vertices[index0.x].y + mesh.vertices[index1.x].y + mesh.vertices[index2.x].y)/3;
+		double zSum = (mesh.vertices[index0.x].z + mesh.vertices[index1.x].z + mesh.vertices[index2.x].z)/3;
+		centroid = new Point3d(xSum, ySum, zSum);
+		centroid.scale(1/3);
+	}
+	
+	@Override
+	public Point3d getCenter(){
+		return centroid;
+	}
 }

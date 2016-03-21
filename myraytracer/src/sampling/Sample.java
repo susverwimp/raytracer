@@ -14,12 +14,12 @@ public class Sample {
 	/**
 	 * x coordinate of the sample in image space.
 	 */
-	public final double x;
+	public double x;
 
 	/**
 	 * y coordinate of the sample in image space.
 	 */
-	public final double y;
+	public double y;
 
 	/**
 	 * Creates a new {@link Sample} for a {@link Camera} at the given position
@@ -37,5 +37,14 @@ public class Sample {
 	public Sample(double x, double y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	public Sample(Sample sample){
+		this.x = sample.x;
+		this.y = sample.y;
+	}
+	
+	public String toString(){
+		return "x: " + x + " y: " + y;
 	}
 }

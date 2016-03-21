@@ -29,7 +29,10 @@ import math.Ray;
 import math.Transformation;
 import math.Vector2d;
 import math.Vector3d;
+import sampling.PureRandom;
+import sampling.Regular;
 import sampling.Sample;
+import sampling.Sampler;
 import shape.BoundingVolume;
 import shape.GeometricObject;
 import shape.Instance;
@@ -38,7 +41,6 @@ import shape.Sphere;
 import shape.trianglemesh.Mesh;
 import shape.trianglemesh.SmoothUVMeshTriangle;
 import texture.Checker3D;
-import texture.ConstantColor;
 import texture.ImageTexture;
 import util.ShadeRec;
 
@@ -55,8 +57,9 @@ public class World {
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final RGBColor falseColor1 = new RGBColor(0, 0, 1);
-	private static final RGBColor falseColor2 = new RGBColor(0, 1, 0);
+	private static final int samplesPerPixel = 10;
+	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
+	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
 
 	private static final boolean OUT_OF_GAMUT = true;
 
@@ -76,92 +79,105 @@ public class World {
 		 * Initialize the scene
 		 *********************************************************************/
 
-		Transformation worldSphereTransformation = Transformation.translate(-1, 0, -6);
+		Transformation worldSphereTransformation = Transformation.translate(2, 0, -6);
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(-225));
+		// Transformation appleTransformation = Transformation.translate(0, -1,
+		// -2).append(Transformation.rotateX(90));
 		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
+		Transformation buddhaTransformation = Transformation.translate(0, 0, -2).append(Transformation.scale(2, 2, 2));
+
+		BoundingVolume bvh = new BoundingVolume();
 
 		// create a world sphere
-//		try {
-//			Sphere sphere = new Sphere(null);
-//			BufferedImage image = null;
-//			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-//			SVMatte imageMatte = new SVMatte(
-//					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-//			imageMatte.setKA(0);
-//			imageMatte.setKD(0.7);
-//
-//			SVPhong imagePhong = new SVPhong(
-//					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-//			imagePhong.setKA(0);
-//			imagePhong.setKD(0.7);
-//			imagePhong.setExp(10);
-//			imagePhong.setKS(1);
-//			shapes.add(new Instance(sphere, true, worldSphereTransformation, imagePhong));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			Sphere sphere = new Sphere(null);
+			BufferedImage image = null;
+			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+			SVMatte imageMatte = new SVMatte(
+					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+			imageMatte.setKA(0);
+			imageMatte.setKD(0.7);
+			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatte));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		// create a plane with black-white checkertexture
-		SVMatte checkerMatte = new SVMatte(new Checker3D(3, new RGBColor(), new RGBColor(1, 1, 1)));
+		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
 		checkerMatte.setKA(0);
 		checkerMatte.setKD(0.7);
-		
-		SVPhong checkerPhong = new SVPhong(new Checker3D(3, new RGBColor(), new RGBColor(1, 1, 1)));
-		checkerPhong.setKA(0);
-		checkerPhong.setKD(0.7);
-		checkerPhong.setExp(27);
-		checkerPhong.setKS(0.5);
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		// create house object
-//		try {
-//			BufferedImage image = ImageIO.read(new File("res/textures/house_texture.jpg"));
-//			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-//			imageMatte.setKA(0);
-//			imageMatte.setKD(0.7);
-//			Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
-//			SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
-//			colorMatte.setKA(0);
-//			colorMatte.setKD(0.7);
-//			for (int i = 0; i < mesh.indices.length; i += 3) {
-//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-//						mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		// try {
+		// BufferedImage image = ImageIO.read(new
+		// File("res/textures/house_texture.jpg"));
+		// SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(),
+		// image.getHeight(), image, null));
+		// imageMatte.setKA(0);
+		// imageMatte.setKD(0.7);
+		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
+		// for (int i = 0; i < mesh.indices.length; i += 3) {
+		// shapes.add(new Instance(new SmoothUVMeshTriangle(mesh,
+		// mesh.indices[i], mesh.indices[i + 1],
+		// mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
+		// }
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
 
-		// create apple object
+		// create apple object with bvh
 		try {
-			BoundingVolume bvh = new BoundingVolume();
 			BufferedImage image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
 			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
 			imageMatte.setKA(0);
 			imageMatte.setKD(0.7);
 			Mesh mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
-			SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
-			colorMatte.setKA(0);
-			colorMatte.setKD(0.7);
-
-			SVPhong imagePhong = new SVPhong(
-					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-			imagePhong.setKA(0);
-			imagePhong.setKD(0.7);
-			imagePhong.setExp(27);
-			imagePhong.setKS(0.5);
 			for (int i = 0; i < mesh.indices.length; i += 3) {
 				bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
 						mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
 			}
-			bvh.calculateHierarchy();
-			shapes.add(bvh);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+		// create apple object without bvh
+		// try {
+		// BufferedImage image = ImageIO.read(new
+		// File("res/textures/apple_texture.jpg"));
+		// SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(),
+		// image.getHeight(), image, null));
+		// imageMatte.setKA(0);
+		// imageMatte.setKD(0.7);
+		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
+		// for (int i = 0; i < mesh.indices.length; i += 3) {
+		// shapes.add(new Instance(new SmoothUVMeshTriangle(mesh,
+		// mesh.indices[i], mesh.indices[i + 1],
+		// mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
+		// }
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+
+		// create buddha object
+		// SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5,
+		// 0.5, 0.5)));
+		// colorMatte.setKA(0);
+		// colorMatte.setKD(0.7);
+		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/buddha.obj");
+		//
+		// for (int i = 0; i < mesh.indices.length; i += 3) {
+		// bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh,
+		// mesh.indices[i], mesh.indices[i + 1],
+		// mesh.indices[i + 2], colorMatte), true, buddhaTransformation, null));
+		// }
+
+		bvh.calculateHierarchy();
+		shapes.add(bvh);
+
 		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
 	}
-	
+
 	public void renderScene() {
 		/**********************************************************************
 		 * Multi-threaded rendering of the scene
@@ -181,15 +197,32 @@ public class World {
 				@Override
 				public void run() {
 					try {
+						 Sampler sampler = new PureRandom(samplesPerPixel, 1,
+						 tile.xStart + tile.getWidth() * tile.yStart);
+//						Sampler sampler = new Regular(samplesPerPixel, 1);
+
 						// iterate over the contents of the tile
 						for (int y = tile.yStart; y < tile.yEnd; ++y) {
 							for (int x = tile.xStart; x < tile.xEnd; ++x) {
-								// create a ray through the center of the
-								// pixel.
-								Ray ray = camera.generateRay(new Sample(x + 0.5, y + 0.5));
+								sampler.generateSamples();
+								RGBColor color = new RGBColor();
 
-								// get color to draw
-								RGBColor color = rayCastTracer.traceRay(ray);
+								for (int i = 0; i < samplesPerPixel; i++) {
+									// get sample of sampler
+									Sample sample = sampler.getSampleUnitSquare();
+									sample.x += x;
+									sample.y += y;
+									// create a ray through the center of the
+									// pixel.
+									Ray ray = camera.generateRay(sample);
+
+									// add to totalcolor
+									RGBColor.add(rayCastTracer.traceRay(ray), color);
+								}
+
+								// get average of the samples
+								RGBColor.scale(1.0 / samplesPerPixel, color);
+
 								if (OUT_OF_GAMUT)
 									maxToOne(color);
 								else
