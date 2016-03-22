@@ -75,11 +75,10 @@ public class BBox extends GeometricObject {
 			t1 = tzMax;
 		
 		if(t0 < t1 && t1 > kEpsilon){
-			if (t0 > kEpsilon) {
+			if(t0 > kEpsilon)
 				shadeRec.t = t0;
-			} else {
+			else
 				shadeRec.t = t1;
-			}
 			shadeRec.totalIntersections++;
 			return true;
 		}

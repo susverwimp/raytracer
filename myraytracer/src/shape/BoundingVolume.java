@@ -1,5 +1,6 @@
 package shape;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -13,13 +14,14 @@ import util.ShadeRec;
 public class BoundingVolume extends Compound {
 
 	public BBox boundingBox;
-
+	public static int depth;
+	
 	public void calculateHierarchy() {
 		if (objects.size() > 1) {
 			Point3d p0 = getMinCoordinates();
 			Point3d p1 = getMaxCoordinates();
 			boundingBox = new BBox(p0, p1);
-
+			
 			double xDistance = Math.abs(boundingBox.maxPoint.x - boundingBox.minPoint.x);
 			double yDistance = Math.abs(boundingBox.maxPoint.y - boundingBox.minPoint.y);
 			double zDistance = Math.abs(boundingBox.maxPoint.z - boundingBox.minPoint.z);
@@ -57,7 +59,7 @@ public class BoundingVolume extends Compound {
 			objects.clear();
 			addObject(left);
 			addObject(right);
-		} else {
+		} else if(objects.size() > 0) {
 			boundingBox = objects.get(0).getBoundingBox();
 		}
 
@@ -76,7 +78,7 @@ public class BoundingVolume extends Compound {
 			if (bbox.minPoint.z > p0.z)
 				p0.z = bbox.minPoint.z;
 		}
-
+		
 		return p0;
 	}
 
@@ -93,13 +95,13 @@ public class BoundingVolume extends Compound {
 			if (bbox.maxPoint.z < p0.z)
 				p0.z = bbox.maxPoint.z;
 		}
-
+		
 		return p0;
 	}
 
 	@Override
 	public boolean intersect(Ray ray, ShadeRec shadeRec) {
-		if (boundingBox.intersect(ray, shadeRec)) {
+		if (boundingBox != null && boundingBox.intersect(ray, shadeRec)) {
 			Vector3d normal = new Vector3d();
 			Point3d localHitPoint = new Point3d();
 			Vector2d textureCoords = new Vector2d();
@@ -108,11 +110,11 @@ public class BoundingVolume extends Compound {
 				if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
 					shadeRec.isHit = true;
 					tmin = shadeRec.t;
-					material = object.material;
+					if(object.material != null)
+						shadeRec.material = object.material;
 					normal.set(shadeRec.normal.x, shadeRec.normal.y, shadeRec.normal.z);
 					localHitPoint.set(shadeRec.localHitPoint.x, shadeRec.localHitPoint.y, shadeRec.localHitPoint.z);
-					textureCoords.setX(shadeRec.textureCoords.x);
-					textureCoords.setY(shadeRec.textureCoords.y);
+					textureCoords.set(shadeRec.textureCoords.x, shadeRec.textureCoords.y);
 				}
 			}
 			if (shadeRec.isHit) {
@@ -129,7 +131,7 @@ public class BoundingVolume extends Compound {
 	
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
-		if(boundingBox.shadowHit(shadowRay, distance)){
+		if(boundingBox != null && boundingBox.shadowHit(shadowRay, distance)){
 			for(GeometricObject object : objects){
 				if(object.shadowHit(shadowRay, distance)){
 					return true;
@@ -137,5 +139,10 @@ public class BoundingVolume extends Compound {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public BBox getBoundingBox(){
+		return boundingBox;
 	}
 }

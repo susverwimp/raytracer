@@ -21,6 +21,7 @@ public class Instance extends GeometricObject {
 	}
 
 	public BBox getBoundingBox() {
+		double delta = 0;
 		BBox bbox = object.getBoundingBox();
 		bbox.minPoint = transformation.transform(bbox.minPoint);
 		bbox.maxPoint = transformation.transform(bbox.maxPoint);
@@ -39,6 +40,14 @@ public class Instance extends GeometricObject {
 			bbox.minPoint.z = bbox.maxPoint.z;
 			bbox.maxPoint.z = temp;
 		}
+		
+		bbox.minPoint.x -= delta;
+		bbox.minPoint.y -= delta;
+		bbox.minPoint.z += delta;
+		bbox.maxPoint.x += delta;
+		bbox.maxPoint.y += delta;
+		bbox.maxPoint.z -= delta;
+		
 		return bbox;
 	}
 
@@ -66,5 +75,10 @@ public class Instance extends GeometricObject {
 	@Override
 	public Point3d getCenter() {
 		return transformation.transform(object.getCenter());
+	}
+	
+	@Override
+	public String toString(){
+		return getCenter().toString();
 	}
 }

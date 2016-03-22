@@ -57,10 +57,11 @@ public class World {
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final int samplesPerPixel = 10;
+	private static final int samplesPerPixel = 1;
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
-
+	
+	private static final boolean useBoundingVolumeHierarchy = true;
 	private static final boolean OUT_OF_GAMUT = true;
 
 	public World(Camera camera, FrameBuffer buffer, ProgressReporter reporter, ImagePanel panel) {
@@ -79,52 +80,49 @@ public class World {
 		 * Initialize the scene
 		 *********************************************************************/
 
-		Transformation worldSphereTransformation = Transformation.translate(2, 0, -6);
-		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(-225));
-		// Transformation appleTransformation = Transformation.translate(0, -1,
-		// -2).append(Transformation.rotateX(90));
+		Transformation worldSphereTransformation = Transformation.translate(1, 0, -4);
+		Transformation houseTransformation = Transformation.translate(-1, -1, -3).append(Transformation.rotateY(70));
 		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
 		Transformation buddhaTransformation = Transformation.translate(0, 0, -2).append(Transformation.scale(2, 2, 2));
 
 		BoundingVolume bvh = new BoundingVolume();
 
 		// create a world sphere
-		try {
-			Sphere sphere = new Sphere(null);
-			BufferedImage image = null;
-			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-			SVMatte imageMatte = new SVMatte(
-					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-			imageMatte.setKA(0);
-			imageMatte.setKD(0.7);
-			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatte));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// create a plane with black-white checkertexture
-		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
-		checkerMatte.setKA(0);
-		checkerMatte.setKD(0.7);
-		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
+//		try {
+//			Sphere sphere = new Sphere(null);
+//			BufferedImage image = null;
+//			image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+//			SVMatte imageMatte = new SVMatte(
+//					new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+//			imageMatte.setKA(0);
+//			imageMatte.setKD(0.7);
+//			if(useBoundingVolumeHierarchy)
+//				bvh.addObject(new Instance(sphere, true, worldSphereTransformation, imageMatte));
+//			else
+//				shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatte));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		// create house object
-		// try {
-		// BufferedImage image = ImageIO.read(new
-		// File("res/textures/house_texture.jpg"));
-		// SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(),
-		// image.getHeight(), image, null));
-		// imageMatte.setKA(0);
-		// imageMatte.setKD(0.7);
-		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
-		// for (int i = 0; i < mesh.indices.length; i += 3) {
-		// shapes.add(new Instance(new SmoothUVMeshTriangle(mesh,
-		// mesh.indices[i], mesh.indices[i + 1],
-		// mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+//		try {
+//			BufferedImage image = ImageIO.read(new File("res/textures/house_texture.jpg"));
+//			SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+//			imageMatte.setKA(0.05);
+//			imageMatte.setKD(0.7);
+//			Mesh mesh = OBJFileLoader.loadOBJ("res/models/house.obj");
+//			for (int i = 0; i < mesh.indices.length; i += 3) {
+//				if (useBoundingVolumeHierarchy) {
+//					bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+//							mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
+//				} else {
+//					shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+//							mesh.indices[i + 2], imageMatte), true, houseTransformation, null));
+//				}
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		// create apple object with bvh
 		try {
@@ -134,30 +132,17 @@ public class World {
 			imageMatte.setKD(0.7);
 			Mesh mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
 			for (int i = 0; i < mesh.indices.length; i += 3) {
-				bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-						mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
+				if (useBoundingVolumeHierarchy) {
+					bvh.addObject(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+							mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
+				} else {
+					shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+							mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		// create apple object without bvh
-		// try {
-		// BufferedImage image = ImageIO.read(new
-		// File("res/textures/apple_texture.jpg"));
-		// SVMatte imageMatte = new SVMatte(new ImageTexture(image.getWidth(),
-		// image.getHeight(), image, null));
-		// imageMatte.setKA(0);
-		// imageMatte.setKD(0.7);
-		// Mesh mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
-		// for (int i = 0; i < mesh.indices.length; i += 3) {
-		// shapes.add(new Instance(new SmoothUVMeshTriangle(mesh,
-		// mesh.indices[i], mesh.indices[i + 1],
-		// mesh.indices[i + 2], imageMatte), true, appleTransformation, null));
-		// }
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
 
 		// create buddha object
 		// SVMatte colorMatte = new SVMatte(new ConstantColor(new RGBColor(0.5,
@@ -172,8 +157,16 @@ public class World {
 		// mesh.indices[i + 2], colorMatte), true, buddhaTransformation, null));
 		// }
 
-		bvh.calculateHierarchy();
-		shapes.add(bvh);
+		if (useBoundingVolumeHierarchy) {
+			bvh.calculateHierarchy();
+			shapes.add(bvh);
+		}
+
+		// create a plane with black-white checkertexture
+		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
+		checkerMatte.setKA(0);
+		checkerMatte.setKD(0.7);
+		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
 	}
@@ -186,7 +179,7 @@ public class World {
 		final ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// subdivide the buffer in equal sized tiles
-		for (final Tile tile : buffer.subdivide(64, 64)) {
+		for (final Tile tile : buffer.subdivide(64,64)) {
 			// create a thread which renders the specific tile
 			Thread thread = new Thread() {
 				/*
@@ -197,9 +190,9 @@ public class World {
 				@Override
 				public void run() {
 					try {
-						 Sampler sampler = new PureRandom(samplesPerPixel, 1,
-						 tile.xStart + tile.getWidth() * tile.yStart);
-//						Sampler sampler = new Regular(samplesPerPixel, 1);
+//						Sampler sampler = new PureRandom(samplesPerPixel, 1,
+//								tile.xStart + tile.getWidth() * tile.yStart);
+						 Sampler sampler = new Regular(samplesPerPixel, 1);
 
 						// iterate over the contents of the tile
 						for (int y = tile.yStart; y < tile.yEnd; ++y) {
@@ -212,6 +205,9 @@ public class World {
 									Sample sample = sampler.getSampleUnitSquare();
 									sample.x += x;
 									sample.y += y;
+									if(sample.x == 350.5 && sample.y == 280.5){
+										System.out.println("test");
+									}
 									// create a ray through the center of the
 									// pixel.
 									Ray ray = camera.generateRay(sample);
@@ -341,17 +337,17 @@ public class World {
 		Vector3d normal = new Vector3d();
 		Point3d localHitPoint = new Point3d();
 		Vector2d textureCoords = new Vector2d();
-		double tmin = Double.POSITIVE_INFINITY;
+		double tmin = shadeRec.t;
 		for (GeometricObject object : shapes) {
 			if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
 				shadeRec.isHit = true;
 				tmin = shadeRec.t;
-				shadeRec.material = object.material;
+				if(!(object instanceof BoundingVolume))
+					shadeRec.material = object.material;
 				shadeRec.hitPoint = ray.origin.add(ray.direction.scale(tmin));
 				normal.set(shadeRec.normal.x, shadeRec.normal.y, shadeRec.normal.z);
 				localHitPoint.set(shadeRec.localHitPoint.x, shadeRec.localHitPoint.y, shadeRec.localHitPoint.z);
-				textureCoords.setX(shadeRec.textureCoords.x);
-				textureCoords.setY(shadeRec.textureCoords.y);
+				textureCoords.set(shadeRec.textureCoords.x, shadeRec.textureCoords.y);
 			}
 		}
 		if (shadeRec.isHit) {

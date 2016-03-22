@@ -1,7 +1,5 @@
 package shape.trianglemesh;
 
-import java.util.Comparator;
-
 import material.Material;
 import math.Point3d;
 import math.Ray;
