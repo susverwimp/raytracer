@@ -35,6 +35,7 @@ public class Plane extends GeometricObject {
 				shadeRec.t = t;
 				shadeRec.normal = normal;
 				shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(t));
+				shadeRec.object = this;
 				shadeRec.totalIntersections++;
 				return true;
 			}

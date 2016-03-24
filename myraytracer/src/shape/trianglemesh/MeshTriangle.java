@@ -86,7 +86,7 @@ public abstract class MeshTriangle extends GeometricObject {
 	}
 
 	public BBox getBoundingBox() {
-		double delta = 0.0001; // to avoid degenerate bounding boxes
+		double delta = 0.0001;
 
 		Point3d v1 = (mesh.vertices[index0.x]);
 		Point3d v2 = (mesh.vertices[index1.x]);

@@ -2,11 +2,9 @@ package util;
 
 import material.Material;
 import math.Point3d;
-import math.RGBColor;
 import math.Ray;
 import math.Vector2d;
 import math.Vector3d;
-import shape.BBox;
 import shape.GeometricObject;
 import tracer.World;
 
@@ -23,6 +21,7 @@ public class ShadeRec {
 	public Vector3d direction;
 	public World world;
 	public int totalIntersections;
+	public GeometricObject object;
 	
 	public ShadeRec(World world) {
 		this.world = world;

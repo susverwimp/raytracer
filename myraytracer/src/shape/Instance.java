@@ -23,6 +23,17 @@ public class Instance extends GeometricObject {
 	public BBox getBoundingBox() {
 		double delta = 0;
 		BBox bbox = object.getBoundingBox();
+//		double xMin = bbox.minPoint.x;
+//		double xMax = bbox.maxPoint.x;
+//		double yMin = bbox.minPoint.y;
+//		double yMax = bbox.maxPoint.y;
+//		double zMin = bbox.minPoint.z;
+//		double zMax = bbox.maxPoint.z;
+		
+		
+		//get all vertices of the childs bounding box and transform them
+		//then see which is the maximum and the minimum point
+		Point3d p1 = 
 		bbox.minPoint = transformation.transform(bbox.minPoint);
 		bbox.maxPoint = transformation.transform(bbox.maxPoint);
 		if (bbox.minPoint.x > bbox.maxPoint.x) {
@@ -57,8 +68,6 @@ public class Instance extends GeometricObject {
 		if (object.intersect(transformedRay, shadeRec)) {
 			shadeRec.normal = transformation.getInverseTransformationMatrix().transpose().transform(shadeRec.normal)
 					.normalize();
-			if (object.material != null)
-				material = object.material;
 			if (!transformTexture)
 				shadeRec.localHitPoint = ray.origin.add(ray.direction.scale(shadeRec.t));
 			return true;

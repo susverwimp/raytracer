@@ -67,6 +67,7 @@ public class FlatUVMeshTriangle extends FlatMeshTriangle {
 	    shadeRec.textureCoords.x = interpolateU(beta, gamma);
 	    shadeRec.textureCoords.y = interpolateV(beta, gamma);
 	    shadeRec.totalIntersections++;
+	    shadeRec.object = this;
         return true;
 	}
 

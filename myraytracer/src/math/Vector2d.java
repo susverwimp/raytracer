@@ -30,6 +30,10 @@ public class Vector2d {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Vector2d(Vector2d vector){
+		this(vector.x, vector.y);
+	}
 
 	public double getX() {
 		return x;

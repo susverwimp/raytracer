@@ -32,7 +32,7 @@ public class Compound extends GeometricObject {
 			if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
 				shadeRec.isHit = true;
 				tmin = shadeRec.t;
-				material = object.material;
+				material = shadeRec.object.material;
 				normal = shadeRec.normal;
 				localHitPoint = shadeRec.localHitPoint;
 			}

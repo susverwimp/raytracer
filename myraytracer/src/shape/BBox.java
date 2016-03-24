@@ -2,6 +2,7 @@ package shape;
 
 import math.Point3d;
 import math.Ray;
+import math.Vector2d;
 import util.ShadeRec;
 
 public class BBox extends GeometricObject {
@@ -20,6 +21,68 @@ public class BBox extends GeometricObject {
 	
 	public BBox getBoundingBox(){
 		return this;
+	}
+	
+	public double getParametricIntersection(Ray ray){
+		double txMin, tyMin, tzMin;
+		double txMax, tyMax, tzMax;
+		
+		double a = 1.0 / ray.direction.x;
+		if(a >= 0){
+			txMin = (minPoint.x - ray.origin.x) * a;
+			txMax = (maxPoint.x - ray.origin.x) * a;
+		}
+		else{
+			txMin = (maxPoint.x - ray.origin.x) * a;
+			txMax = (minPoint.x - ray.origin.x) * a;
+		}
+		
+		double b = 1.0 / ray.direction.y;
+		if(b>=0){
+			tyMin = (minPoint.y - ray.origin.y) * b;
+			tyMax = (maxPoint.y - ray.origin.y) * b;
+		}
+		else{
+			tyMin = (maxPoint.y - ray.origin.y) * b;
+			tyMax = (minPoint.y - ray.origin.y) * b;
+		}
+		
+		double c = 1.0 / ray.direction.z;
+		if(c<=0){
+			tzMin = (minPoint.z - ray.origin.z) * c;
+			tzMax = (maxPoint.z - ray.origin.z) * c;
+		}
+		else{
+			tzMin = (maxPoint.z - ray.origin.z) * c;
+			tzMax = (minPoint.z - ray.origin.z) * c;
+		}
+		
+		double t0, t1;
+		//find largest entering t value
+		if(txMin > tyMin)
+			t0 = txMin;
+		else
+			t0 = tyMin;
+		if(tzMin > t0)
+			t0 = tzMin;
+		
+		//find smallest exiting t value
+		if(txMax < tyMax)
+			t1 = txMax;
+		else
+			t1 = tyMax;
+		if(tzMax < t1)
+			t1 = tzMax;
+		
+		if(t0 < t1 && t1 > kEpsilon){
+			if(t0 > kEpsilon){
+				return t0;
+			}else{
+				return t1;
+			}
+		}
+		
+		return -1;
 	}
 
 	@Override
@@ -75,10 +138,6 @@ public class BBox extends GeometricObject {
 			t1 = tzMax;
 		
 		if(t0 < t1 && t1 > kEpsilon){
-			if(t0 > kEpsilon)
-				shadeRec.t = t0;
-			else
-				shadeRec.t = t1;
 			shadeRec.totalIntersections++;
 			return true;
 		}

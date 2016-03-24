@@ -15,7 +15,7 @@ public class RayCast extends Tracer {
 		ShadeRec shadeRec = world.hitObjects(ray);
 		if (shadeRec.isHit) {
 			shadeRec.ray = ray;
-			return shadeRec.material.shade(shadeRec);
+			return shadeRec.object.material.shade(shadeRec);
 		}
 		return world.backgroundColor;
 	}

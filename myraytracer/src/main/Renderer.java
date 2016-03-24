@@ -3,6 +3,9 @@ package main;
 import math.Point3d;
 import math.Vector3d;
 import tracer.World;
+
+import java.io.IOException;
+
 import camera.PerspectiveCamera;
 import film.FrameBuffer;
 import gui.ImagePanel;
@@ -22,13 +25,13 @@ public class Renderer {
 	 * @param arguments
 	 *            command line arguments.
 	 */
-	public static void main(String[] arguments) {
+	public static void main(String[] arguments) throws IOException {
 		int width = 620;
 		int height = 620;
 		double sensitivity = 1.0;
 		double gamma = 2.2;
 		boolean gui = true;
-		boolean falseColor = false;
+		boolean falseColor = true;
 
 		/**********************************************************************
 		 * Parse the command line arguments

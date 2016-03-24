@@ -23,9 +23,4 @@ public class Jittered extends Sampler {
 			}
 		}
 	}
-
-	@Override
-	public Sample getSampleUnitSquare() {
-		return new Sample(samples[count++]);
-	}
 }

@@ -3,25 +3,36 @@ package shape;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
+import material.SVMatte;
 import math.Point3d;
+import math.RGBColor;
 import math.Ray;
 import math.Vector2d;
 import math.Vector3d;
-import shape.trianglemesh.MeshTriangle;
+import texture.ConstantColor;
 import util.ShadeRec;
 
 public class BoundingVolume extends Compound {
 
 	public BBox boundingBox;
-	public static int depth;
-	
+	public BoundingVolume root;
+
+	public BoundingVolume() {
+		root = this;
+	}
+
+	public BoundingVolume(BoundingVolume root) {
+		this.root = root;
+	}
+
 	public void calculateHierarchy() {
 		if (objects.size() > 1) {
 			Point3d p0 = getMinCoordinates();
 			Point3d p1 = getMaxCoordinates();
 			boundingBox = new BBox(p0, p1);
-			
+
 			double xDistance = Math.abs(boundingBox.maxPoint.x - boundingBox.minPoint.x);
 			double yDistance = Math.abs(boundingBox.maxPoint.y - boundingBox.minPoint.y);
 			double zDistance = Math.abs(boundingBox.maxPoint.z - boundingBox.minPoint.z);
@@ -46,12 +57,12 @@ public class BoundingVolume extends Compound {
 			}
 
 			Collections.sort(objects, comparator);
-			BoundingVolume left = new BoundingVolume();
+			BoundingVolume left = new BoundingVolume(root);
 			for (int i = 0; i < objects.size() / 2; i++) {
 				left.addObject(objects.get(i));
 			}
 			left.calculateHierarchy();
-			BoundingVolume right = new BoundingVolume();
+			BoundingVolume right = new BoundingVolume(root);
 			for (int i = objects.size() / 2; i < objects.size(); i++) {
 				right.addObject(objects.get(i));
 			}
@@ -59,7 +70,7 @@ public class BoundingVolume extends Compound {
 			objects.clear();
 			addObject(left);
 			addObject(right);
-		} else if(objects.size() > 0) {
+		} else if (objects.size() > 0) {
 			boundingBox = objects.get(0).getBoundingBox();
 		}
 
@@ -78,7 +89,7 @@ public class BoundingVolume extends Compound {
 			if (bbox.minPoint.z > p0.z)
 				p0.z = bbox.minPoint.z;
 		}
-		
+
 		return p0;
 	}
 
@@ -95,54 +106,105 @@ public class BoundingVolume extends Compound {
 			if (bbox.maxPoint.z < p0.z)
 				p0.z = bbox.maxPoint.z;
 		}
-		
+
 		return p0;
 	}
+
+	// @Override
+	// public boolean intersect(Ray ray, ShadeRec shadeRec) {
+	// if (boundingBox != null && boundingBox.intersect(ray, shadeRec)) {
+	// Vector3d normal = new Vector3d();
+	// Point3d localHitPoint = new Point3d();
+	// Vector2d textureCoords = new Vector2d();
+	// double tmin = Double.POSITIVE_INFINITY;
+	// for (GeometricObject object : objects) {
+	// if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
+	// shadeRec.isHit = true;
+	// tmin = shadeRec.t;
+	// normal.set(shadeRec.normal.x, shadeRec.normal.y, shadeRec.normal.z);
+	// localHitPoint.set(shadeRec.localHitPoint.x, shadeRec.localHitPoint.y,
+	// shadeRec.localHitPoint.z);
+	// textureCoords.set(shadeRec.textureCoords.x, shadeRec.textureCoords.y);
+	// }
+	// }
+	// if (shadeRec.isHit) {
+	// shadeRec.t = tmin;
+	// shadeRec.normal = normal;
+	// shadeRec.localHitPoint = localHitPoint;
+	// shadeRec.textureCoords = textureCoords;
+	// }
+	//
+	// return shadeRec.isHit;
+	// }
+	// return false;
+	// }
 
 	@Override
 	public boolean intersect(Ray ray, ShadeRec shadeRec) {
 		if (boundingBox != null && boundingBox.intersect(ray, shadeRec)) {
-			Vector3d normal = new Vector3d();
-			Point3d localHitPoint = new Point3d();
-			Vector2d textureCoords = new Vector2d();
-			double tmin = Double.POSITIVE_INFINITY;
-			for (GeometricObject object : objects) {
+			if (objects.size() > 1) {
+				GeometricObject left = objects.get(0);
+				GeometricObject right = objects.get(1);
+				double leftIntersection = left.getBoundingBox().getParametricIntersection(ray);
+				double rightIntersection = right.getBoundingBox().getParametricIntersection(ray);
+				//swap if right is not the closest parametric intersection
+				if (leftIntersection != -1) {
+					if (rightIntersection != -1) {
+						if (rightIntersection < leftIntersection) {
+							GeometricObject tempObject = left;
+							left = right;
+							right = tempObject;
+						}
+					} else {
+						right = null;
+					}
+				} else {
+					left = null;
+				}
+
+				boolean isHit = false;
+				if (left != null && left.intersect(ray, shadeRec))
+					isHit = true;
+				if (right != null && right.intersect(ray, shadeRec)) {
+					isHit = true;
+				}
+				return isHit;
+			} else if (objects.size() > 0) {
+				GeometricObject object = objects.get(0);
+				Vector3d normal = new Vector3d(shadeRec.normal);
+				Point3d localHitPoint = new Point3d(shadeRec.localHitPoint);
+				Vector2d textureCoords = new Vector2d(shadeRec.textureCoords);
+				GeometricObject objectHit = shadeRec.object;
+				double tmin = shadeRec.t;
 				if (object.intersect(ray, shadeRec) && shadeRec.t < tmin) {
-					shadeRec.isHit = true;
-					tmin = shadeRec.t;
-					if(object.material != null)
-						shadeRec.material = object.material;
-					normal.set(shadeRec.normal.x, shadeRec.normal.y, shadeRec.normal.z);
-					localHitPoint.set(shadeRec.localHitPoint.x, shadeRec.localHitPoint.y, shadeRec.localHitPoint.z);
-					textureCoords.set(shadeRec.textureCoords.x, shadeRec.textureCoords.y);
+					return true;
+				} else {
+					shadeRec.t = tmin;
+					shadeRec.normal = normal;
+					shadeRec.localHitPoint = localHitPoint;
+					shadeRec.textureCoords = textureCoords;
+					shadeRec.object = objectHit;
 				}
 			}
-			if (shadeRec.isHit) {
-				shadeRec.t = tmin;
-				shadeRec.normal = normal;
-				shadeRec.localHitPoint = localHitPoint;
-				shadeRec.textureCoords = textureCoords;
-			}
-
-			return shadeRec.isHit;
 		}
 		return false;
+
 	}
-	
+
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
-		if(boundingBox != null && boundingBox.shadowHit(shadowRay, distance)){
-			for(GeometricObject object : objects){
-				if(object.shadowHit(shadowRay, distance)){
+		if (boundingBox != null && boundingBox.shadowHit(shadowRay, distance)) {
+			for (GeometricObject object : objects) {
+				if (object.shadowHit(shadowRay, distance)) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
-	public BBox getBoundingBox(){
+	public BBox getBoundingBox() {
 		return boundingBox;
 	}
 }
