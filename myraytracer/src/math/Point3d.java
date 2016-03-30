@@ -140,6 +140,10 @@ public class Point3d implements Cloneable, Comparable<Point3d> {
 	public Point3d add(Vector3d vector) throws NullPointerException {
 		return add(vector.x, vector.y, vector.z);
 	}
+	
+	public Point3d add(Point3d point){
+		return add(point.x, point.y, point.z);
+	}
 
 	/**
 	 * Constructs the {@link Vector3d} spanned between this {@link Point3d} and the

@@ -17,6 +17,9 @@ public class Ray implements Cloneable {
 	 * The direction the ray is pointing to.
 	 */
 	public final Vector3d direction;
+	
+	public final double minT;
+	public final double maxT;
 
 	/**
 	 * Creates a new {@link Ray} starting at the given origin and propagating
@@ -30,12 +33,18 @@ public class Ray implements Cloneable {
 	 *             when the given origin and/or direction is null.
 	 */
 	public Ray(Point3d origin, Vector3d direction) throws NullPointerException {
+		this(origin, direction, 0, Double.MAX_VALUE);
+	}
+	
+	public Ray(Point3d origin, Vector3d direction, double minT, double maxT){
 		if (origin == null)
 			throw new NullPointerException("the given origin is null!");
 		if (direction == null)
 			throw new NullPointerException("the given direction is null!");
 		this.origin = origin;
 		this.direction = direction;
+		this.minT = minT;
+		this.maxT = maxT;
 	}
 
 	/**
@@ -47,7 +56,7 @@ public class Ray implements Cloneable {
 	 *             when the given ray is null.
 	 */
 	public Ray(Ray ray) throws NullPointerException {
-		this(ray.origin, ray.direction);
+		this(ray.origin, ray.direction, ray.minT, ray.maxT);
 	}
 
 	/*

@@ -31,7 +31,7 @@ public class Renderer {
 		double sensitivity = 1.0;
 		double gamma = 2.2;
 		boolean gui = true;
-		boolean falseColor = true;
+		boolean falseColor = false;
 
 		/**********************************************************************
 		 * Parse the command line arguments
