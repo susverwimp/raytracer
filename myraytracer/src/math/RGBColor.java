@@ -44,6 +44,10 @@ public class RGBColor {
 		return new RGBColor(r * color.r, g * color.g, b * color.b);
 	}
 	
+	public RGBColor multiply(double scalar){
+		return new RGBColor(r * scalar, g * scalar, b * scalar);
+	}
+	
 	@Override
 	public String toString() {
 		return String.format(Locale.ENGLISH, "[%s]:\n%g %g %g", getClass()

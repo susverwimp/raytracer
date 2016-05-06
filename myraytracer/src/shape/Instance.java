@@ -33,7 +33,7 @@ public class Instance extends GeometricObject {
 		
 		//get all vertices of the childs bounding box and transform them
 		//then see which is the maximum and the minimum point
-		Point3d p1 = 
+//		Point3d p1 = 
 		bbox.minPoint = transformation.transform(bbox.minPoint);
 		bbox.maxPoint = transformation.transform(bbox.maxPoint);
 		if (bbox.minPoint.x > bbox.maxPoint.x) {

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import material.Material;
 import math.Point3d;
 import math.Ray;
+import math.Vector3d;
 import util.ShadeRec;
 
 public abstract class GeometricObject implements Comparable<GeometricObject> {
@@ -68,6 +69,18 @@ public abstract class GeometricObject implements Comparable<GeometricObject> {
 	@Override
 	public int compareTo(GeometricObject o) {
 		return 0;
+	}
+	
+	public Point3d sample(){
+		return null;
+	}
+	
+	public double pdf(ShadeRec shadeRec){
+		return 1.0;
+	}
+	
+	public Vector3d getNormal(Point3d p){
+		return null;
 	}
 	
 }

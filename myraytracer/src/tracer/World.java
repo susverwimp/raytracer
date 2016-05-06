@@ -21,6 +21,7 @@ import light.Light;
 import light.PointLight;
 import loader.OBJFileLoader;
 import mapping.SphericalMap;
+import material.Emissive;
 import material.SVMatte;
 import math.Point3d;
 import math.RGBColor;
@@ -33,9 +34,11 @@ import sampling.Regular;
 import sampling.Sample;
 import sampling.Sampler;
 import shape.BoundingVolume;
+import shape.Disk;
 import shape.GeometricObject;
 import shape.Instance;
 import shape.Plane;
+import shape.Rectangle;
 import shape.Sphere;
 import shape.trianglemesh.Mesh;
 import shape.trianglemesh.SmoothUVMeshTriangle;
@@ -69,7 +72,7 @@ public class World {
 		this.buffer = buffer;
 		this.reporter = reporter;
 		this.panel = panel;
-		this.rayCastTracer = new RayCast(this);
+		this.rayCastTracer = new AreaLighting(this);
 		this.backgroundColor = new RGBColor();
 		this.ambient = new Ambient();
 		build();
@@ -127,23 +130,23 @@ public class World {
 //		bvhs.add(new Instance(bvh, true, houseTransformation, null));
 
 		// create apple object with bvh
-		bvh = new BoundingVolume();
-		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
-		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-		imageMatteApple.setKA(0);
-		imageMatteApple.setKD(0.7);
-		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
-		for (int i = 0; i < mesh.indices.length; i += 3) {
-			if (useBoundingVolumeHierarchy) {
-				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
-						imageMatteApple));
-			} else {
-				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
-			}
-		}
-		bvh.calculateHierarchy();
-		bvhs.add(new Instance(bvh, true, appleTransformation, null));
+//		bvh = new BoundingVolume();
+//		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
+//		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+//		imageMatteApple.setKA(0);
+//		imageMatteApple.setKD(0.7);
+//		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
+//		for (int i = 0; i < mesh.indices.length; i += 3) {
+//			if (useBoundingVolumeHierarchy) {
+//				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+//						imageMatteApple));
+//			} else {
+//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+//						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
+//			}
+//		}
+//		bvh.calculateHierarchy();
+//		bvhs.add(new Instance(bvh, true, appleTransformation, null));
 
 		// create bunny
 //		bvh = new BoundingVolume();
@@ -184,12 +187,28 @@ public class World {
 			}
 		}
 
+//		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
+//		checkerMatte.setKA(0);
+//		checkerMatte.setKD(0.7);
+//		Disk disk = new Disk(new Point3d(0,-1, -5), new Vector3d(0, 1, 0), 1, checkerMatte);
+//		shapes.add(disk);
+		
+		Emissive emissive = new Emissive();
+		emissive.scaleRadiance(40.0);
+		emissive.setCE(1, 1, 1);
+		
+		
+		
 		// create a plane with black-white checkertexture
 		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
 		checkerMatte.setKA(0);
 		checkerMatte.setKD(0.7);
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
+		//create rectangle
+		Rectangle rectangle = new Rectangle(new Point3d(0,0,-5), new Vector3d(0,2,0), new Vector3d(2,0,0), new Vector3d(0,0,1), emissive);
+		shapes.add(rectangle);
+		
 		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
 		// lights.add(new PointLight(100, new RGBColor(1,0.1,0.1), new
 		// Point3d(-1, 2, -2)));

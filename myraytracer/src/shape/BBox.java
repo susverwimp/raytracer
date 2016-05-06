@@ -2,6 +2,7 @@ package shape;
 
 import math.Point3d;
 import math.Ray;
+import math.Vector2d;
 import util.ShadeRec;
 
 public class BBox extends GeometricObject {
