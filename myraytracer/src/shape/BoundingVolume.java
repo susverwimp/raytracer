@@ -1,17 +1,12 @@
 package shape;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
-import material.SVMatte;
 import math.Point3d;
-import math.RGBColor;
 import math.Ray;
 import math.Vector2d;
 import math.Vector3d;
-import texture.ConstantColor;
 import util.ShadeRec;
 
 public class BoundingVolume extends Compound {
