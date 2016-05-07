@@ -61,6 +61,33 @@ public class Rectangle extends GeometricObject {
 	}
 	
 	@Override
+	public boolean shadowHit(Ray shadowRay, double distance){
+		if(!shadows)
+			return false;
+		double t = (p0.subtract(shadowRay.origin)).dot(normal) / (shadowRay.direction.dot(normal));
+		
+		if(t <= kEpsilon || t > distance)
+			return false;
+		
+		Point3d p = shadowRay.origin.add(shadowRay.direction.scale(t));
+		Vector3d d = p.subtract(p0);
+		
+		double dDotA = d.dot(a);
+		if(dDotA < 0.0 || dDotA > aLengthSquared)
+			return false;
+		
+		double dDotB = d.dot(b);
+		if(dDotB < 0.0 || dDotB > bLengthSquared)
+			return false;
+		
+		return true;
+	}
+	
+	public void setSampler(Sampler sampler){
+		this.sampler = sampler;
+	}
+	
+	@Override
 	public Point3d sample(){
 		Sample samplePoint = sampler.getSampleUnitSquare();
 		return (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));

@@ -45,6 +45,8 @@ public class Plane extends GeometricObject {
 
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
+		if(!shadows)
+			return false;
 		double denom = shadowRay.direction.dot(normal);
 		if(Math.abs(denom) > kEpsilon){
 			double t = pointInPlane.subtract(shadowRay.origin).dot(normal) / denom;

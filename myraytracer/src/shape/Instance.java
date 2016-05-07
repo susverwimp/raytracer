@@ -77,6 +77,8 @@ public class Instance extends GeometricObject {
 
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
+		if(!shadows)
+			return false;
 		Ray transformedRay = transformation.transformInverse(shadowRay);
 		return object.shadowHit(transformedRay, distance);
 	}

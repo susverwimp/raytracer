@@ -17,8 +17,10 @@ import film.Tile;
 import gui.ImagePanel;
 import gui.ProgressReporter;
 import light.Ambient;
+import light.AreaLight;
 import light.Light;
 import light.PointLight;
+import loader.OBJFileLoader;
 import material.Emissive;
 import material.SVMatte;
 import math.Point3d;
@@ -27,15 +29,19 @@ import math.Ray;
 import math.Transformation;
 import math.Vector2d;
 import math.Vector3d;
+import sampling.PureRandom;
 import sampling.Regular;
 import sampling.Sample;
 import sampling.Sampler;
 import shape.BoundingVolume;
 import shape.GeometricObject;
+import shape.Instance;
 import shape.Plane;
 import shape.Rectangle;
 import shape.trianglemesh.Mesh;
+import shape.trianglemesh.SmoothUVMeshTriangle;
 import texture.Checker3D;
+import texture.ImageTexture;
 import util.ShadeRec;
 
 public class World {
@@ -51,7 +57,7 @@ public class World {
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final int samplesPerPixel = 1;
+	private static final int samplesPerPixel = 1000;
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
 
@@ -121,23 +127,23 @@ public class World {
 //		bvhs.add(new Instance(bvh, true, houseTransformation, null));
 
 		// create apple object with bvh
-//		bvh = new BoundingVolume();
-//		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
-//		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-//		imageMatteApple.setKA(0);
-//		imageMatteApple.setKD(0.7);
-//		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
-//		for (int i = 0; i < mesh.indices.length; i += 3) {
-//			if (useBoundingVolumeHierarchy) {
-//				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
-//						imageMatteApple));
-//			} else {
-//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-//						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
-//			}
-//		}
-//		bvh.calculateHierarchy();
-//		bvhs.add(new Instance(bvh, true, appleTransformation, null));
+		bvh = new BoundingVolume();
+		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
+		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+		imageMatteApple.setKA(0);
+		imageMatteApple.setKD(0.7);
+		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
+		for (int i = 0; i < mesh.indices.length; i += 3) {
+			if (useBoundingVolumeHierarchy) {
+				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+						imageMatteApple));
+			} else {
+				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
+			}
+		}
+		bvh.calculateHierarchy();
+		bvhs.add(new Instance(bvh, true, appleTransformation, null));
 
 		// create bunny
 //		bvh = new BoundingVolume();
@@ -185,7 +191,7 @@ public class World {
 //		shapes.add(disk);
 		
 		Emissive emissive = new Emissive();
-		emissive.scaleRadiance(40.0);
+		emissive.scaleRadiance(5.0);
 		emissive.setCE(1, 1, 1);
 		
 		
@@ -197,10 +203,19 @@ public class World {
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		//create rectangle
-		Rectangle rectangle = new Rectangle(new Point3d(0,0,-5), new Vector3d(0,2,0), new Vector3d(2,0,0), new Vector3d(0,0,1), emissive);
+		Rectangle rectangle = new Rectangle(new Point3d(0,-1,-5), new Vector3d(0,2,0), new Vector3d(2,0,0), new Vector3d(0,0,1), emissive);
+		Sampler pureRandomSampler = new PureRandom(samplesPerPixel, 1, 5);
+		pureRandomSampler.generateSamples();
+		Sampler regularSampler = new Regular(samplesPerPixel, 1);
+		regularSampler.generateSamples();
+		rectangle.setSampler(regularSampler);
+		rectangle.setShadows(false);
 		shapes.add(rectangle);
 		
-		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
+		Light arealight = new AreaLight(rectangle);
+		arealight.setShadows(true);
+		lights.add(arealight);
+//		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
 		// lights.add(new PointLight(100, new RGBColor(1,0.1,0.1), new
 		// Point3d(-1, 2, -2)));
 	}

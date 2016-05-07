@@ -74,6 +74,8 @@ public class Sphere extends GeometricObject {
 
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
+		if(!shadows)
+			return false;
 		Vector3d o = shadowRay.origin.toVector();
 
 		double a = shadowRay.direction.dot(shadowRay.direction);

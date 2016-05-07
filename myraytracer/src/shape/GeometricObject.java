@@ -11,6 +11,7 @@ import util.ShadeRec;
 public abstract class GeometricObject implements Comparable<GeometricObject> {
 	
 	public Material material;
+	public boolean shadows = true;
 	public static final double kEpsilon = 1e-6;
 	
 	public static final Comparator<GeometricObject> xAxisComparator = new Comparator<GeometricObject>() {
@@ -81,6 +82,10 @@ public abstract class GeometricObject implements Comparable<GeometricObject> {
 	
 	public Vector3d getNormal(Point3d p){
 		return null;
+	}
+	
+	public void setShadows(boolean shadows){
+		this.shadows = shadows;
 	}
 	
 }

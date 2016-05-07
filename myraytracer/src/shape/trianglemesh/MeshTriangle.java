@@ -28,6 +28,8 @@ public abstract class MeshTriangle extends GeometricObject {
 
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
+		if(!shadows)
+			return false;
 		Point3d v0 = (mesh.vertices[index0.x]);
 		Point3d v1 = (mesh.vertices[index1.x]);
 		Point3d v2 = (mesh.vertices[index2.x]);

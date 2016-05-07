@@ -146,6 +146,8 @@ public class BBox extends GeometricObject {
 	
 	@Override
 	public boolean shadowHit(Ray shadowRay, double distance) {
+		if(!shadows)
+			return false;
 		double txMin, tyMin, tzMin;
 		double txMax, tyMax, tzMax;
 		

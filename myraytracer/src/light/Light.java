@@ -13,6 +13,9 @@ public abstract class Light {
 	public abstract RGBColor L(ShadeRec shadeRec);
 	
 	public abstract boolean inShadow(Ray shadowRay, ShadeRec shadeRec);
+	public void setShadows(boolean castShadows){
+		this.castShadows = castShadows;
+	}
 	public double G(ShadeRec shadeRec){
 		return 1.0;
 	}

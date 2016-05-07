@@ -16,6 +16,11 @@ public class AreaLight extends Light {
 	private Vector3d lightNormal;
 	private Vector3d wi;
 	
+	public AreaLight(GeometricObject object){
+		this.object = object;
+		this.material = object.material;
+	}
+	
 	@Override
 	public Vector3d getDirection(ShadeRec shadeRec) {
 		samplePoint = object.sample();
