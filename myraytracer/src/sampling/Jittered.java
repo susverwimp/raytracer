@@ -7,8 +7,7 @@ public class Jittered extends Sampler {
 	public Random random;
 	
 	public Jittered(int numberOfSamples, int numberOfSets, long seed) {
-		super(numberOfSamples, numberOfSets);
-		random = new Random(seed);
+		super(numberOfSamples, numberOfSets, new Random(seed));
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package util;
 
-import material.Material;
 import math.Point3d;
 import math.Ray;
 import math.Vector2d;
@@ -12,7 +11,6 @@ public class ShadeRec {
 
 	public double t;
 	public boolean isHit;
-	public Material material;
 	public Point3d hitPoint;
 	public Point3d localHitPoint;
 	public Vector3d normal;
@@ -23,6 +21,12 @@ public class ShadeRec {
 	public int totalIntersections;
 	public GeometricObject object;
 	
+	//for arealights
+	public Point3d samplePoint;
+	public Vector3d lightNormal;
+	public Vector3d wi;
+	
+	
 	public ShadeRec(World world) {
 		this.world = world;
 		isHit = false;
@@ -32,6 +36,10 @@ public class ShadeRec {
 		direction = new Vector3d();
 		textureCoords = new Vector2d();
 		t = Double.POSITIVE_INFINITY;
+		
+		samplePoint = new Point3d();
+		lightNormal = new Vector3d();
+		wi = new Vector3d();
 	}
 
 }

@@ -57,7 +57,7 @@ public class World {
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final int samplesPerPixel = 1000;
+	private static final int samplesPerPixel = 1;
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
 
@@ -82,7 +82,7 @@ public class World {
 
 		Transformation worldSphereTransformation = Transformation.translate(1.5, 0, -4);
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(90));
-		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
+		Transformation appleTransformation = Transformation.translate(0, -1, -3).append(Transformation.rotateX(90));
 		Transformation buddhaTransformation = Transformation.translate(0, 0, -2).append(Transformation.scale(2, 2, 2)).append(Transformation.rotateY(180));
 		Transformation bunnyTransformation = Transformation.translate(0, -1, -3).append(Transformation.scale(0.5, 0.5, 0.5));
 
@@ -203,11 +203,8 @@ public class World {
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		//create rectangle
-		Rectangle rectangle = new Rectangle(new Point3d(0,-1,-5), new Vector3d(0,2,0), new Vector3d(2,0,0), new Vector3d(0,0,1), emissive);
-		Sampler pureRandomSampler = new PureRandom(samplesPerPixel, 1, 5);
-		pureRandomSampler.generateSamples();
-		Sampler regularSampler = new Regular(samplesPerPixel, 1);
-		regularSampler.generateSamples();
+		Rectangle rectangle = new Rectangle(new Point3d(-1,2,-5), new Vector3d(0,0,2), new Vector3d(2,0,0), new Vector3d(0,-1,0), emissive);
+		Regular regularSampler = new Regular();
 		rectangle.setSampler(regularSampler);
 		rectangle.setShadows(false);
 		shapes.add(rectangle);
@@ -239,14 +236,10 @@ public class World {
 				@Override
 				public void run() {
 					try {
-						// Sampler sampler = new PureRandom(samplesPerPixel, 1,
-						// tile.xStart + tile.getWidth() * tile.yStart);
-						Sampler sampler = new Regular(samplesPerPixel, 1);
-
+						Sampler sampler = new Regular();
 						// iterate over the contents of the tile
 						for (int y = tile.yStart; y < tile.yEnd; ++y) {
 							for (int x = tile.xStart; x < tile.xEnd; ++x) {
-								sampler.generateSamples();
 								RGBColor color = new RGBColor();
 
 								for (int i = 0; i < samplesPerPixel; i++) {
@@ -257,6 +250,8 @@ public class World {
 									// create a ray through the center of the
 									// pixel.
 									Ray ray = camera.generateRay(sample);
+									if(sample.x == 120.5 && sample.y == 220.5)
+										System.out.println("test");
 
 									// add to totalcolor
 									RGBColor.add(rayCastTracer.traceRay(ray), color);

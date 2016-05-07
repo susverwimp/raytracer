@@ -90,7 +90,8 @@ public class Rectangle extends GeometricObject {
 	@Override
 	public Point3d sample(){
 		Sample samplePoint = sampler.getSampleUnitSquare();
-		return (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));
+		Point3d result = (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));
+		return result;
 	}
 	
 	@Override

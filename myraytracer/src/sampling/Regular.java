@@ -1,17 +1,19 @@
 package sampling;
 
+import java.util.Random;
+
 public class Regular extends Sampler {
 
-	public Regular(int numberOfSamples, int numberOfSets) {
-		super(numberOfSamples, numberOfSets);
+	public Regular() {
+		super(0,0, new Random());
 	}
 
 	@Override
 	public void generateSamples() {
-		for(int i = 0; i < numberOfSets; i++){
-			for(int j = 0; j < numberOfSamples; j++){
-				samples[j+i*numberOfSamples] = new Sample(0.5, 0.5);
-			}
-		}
+	}
+	
+	@Override
+	public Sample getSampleUnitSquare(){
+		return new Sample(0.5, 0.5);
 	}
 }

@@ -7,8 +7,7 @@ public class PureRandom extends Sampler {
 	public Random random;
 	
 	public PureRandom(int numberOfSamples, int numberOfSets, long seed) {
-		super(numberOfSamples, numberOfSets);
-		random = new Random(seed);
+		super(numberOfSamples, numberOfSets, new Random(seed));
 		numberOfSets = 1;
 	}
 

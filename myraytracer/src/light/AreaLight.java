@@ -1,7 +1,6 @@
 package light;
 
 import material.Material;
-import math.Point3d;
 import math.RGBColor;
 import math.Ray;
 import math.Vector3d;
@@ -12,9 +11,6 @@ public class AreaLight extends Light {
 
 	private GeometricObject object;
 	private Material material;
-	private Point3d samplePoint;
-	private Vector3d lightNormal;
-	private Vector3d wi;
 	
 	public AreaLight(GeometricObject object){
 		this.object = object;
@@ -23,17 +19,16 @@ public class AreaLight extends Light {
 	
 	@Override
 	public Vector3d getDirection(ShadeRec shadeRec) {
-		samplePoint = object.sample();
-		lightNormal = object.getNormal(samplePoint);
-		wi = samplePoint.subtract(shadeRec.hitPoint);
-		wi.normalize();
+		shadeRec.samplePoint = object.sample();
+		shadeRec.lightNormal = object.getNormal(shadeRec.samplePoint);
+		shadeRec.wi = shadeRec.samplePoint.subtract(shadeRec.hitPoint).normalize();
 		
-		return wi;
+		return shadeRec.wi;
 	}
 
 	@Override
 	public RGBColor L(ShadeRec shadeRec) {
-		double nDotD = lightNormal.scale(-1).dot(wi);
+		double nDotD = shadeRec.lightNormal.scale(-1).dot(shadeRec.wi);
 		if(nDotD > 0.0)
 			return material.getLE(shadeRec);
 		return new RGBColor();
@@ -41,7 +36,7 @@ public class AreaLight extends Light {
 
 	@Override
 	public boolean inShadow(Ray shadowRay, ShadeRec shadeRec) {
-		double distance = (samplePoint.subtract(shadowRay.origin)).dot(shadowRay.direction);
+		double distance = (shadeRec.samplePoint.subtract(shadowRay.origin)).dot(shadowRay.direction);
 		for(GeometricObject object : shadeRec.world.shapes){
 			if(object.shadowHit(shadowRay, distance))
 				return true;
@@ -50,8 +45,8 @@ public class AreaLight extends Light {
 	}
 	
 	public double G(ShadeRec shadeRec){
-		double nDotD = lightNormal.scale(-1).dot(wi);
-		double d2 = samplePoint.distanceSquared(shadeRec.hitPoint);
+		double nDotD = shadeRec.lightNormal.scale(-1).dot(shadeRec.wi);
+		double d2 = shadeRec.samplePoint.distanceSquared(shadeRec.hitPoint);
 		
 		return nDotD / d2;
 	}
