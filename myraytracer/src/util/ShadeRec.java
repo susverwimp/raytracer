@@ -4,6 +4,7 @@ import math.Point3d;
 import math.Ray;
 import math.Vector2d;
 import math.Vector3d;
+import sampling.Sampler;
 import shape.GeometricObject;
 import tracer.World;
 
@@ -25,6 +26,7 @@ public class ShadeRec {
 	public Point3d samplePoint;
 	public Vector3d lightNormal;
 	public Vector3d wi;
+	public Sampler arealightSampler;
 	
 	
 	public ShadeRec(World world) {

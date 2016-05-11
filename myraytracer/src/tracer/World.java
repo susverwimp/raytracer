@@ -21,6 +21,7 @@ import light.AreaLight;
 import light.Light;
 import light.PointLight;
 import loader.OBJFileLoader;
+import mapping.SphericalMap;
 import material.Emissive;
 import material.SVMatte;
 import math.Point3d;
@@ -29,6 +30,7 @@ import math.Ray;
 import math.Transformation;
 import math.Vector2d;
 import math.Vector3d;
+import sampling.Jittered;
 import sampling.PureRandom;
 import sampling.Regular;
 import sampling.Sample;
@@ -38,6 +40,7 @@ import shape.GeometricObject;
 import shape.Instance;
 import shape.Plane;
 import shape.Rectangle;
+import shape.Sphere;
 import shape.trianglemesh.Mesh;
 import shape.trianglemesh.SmoothUVMeshTriangle;
 import texture.Checker3D;
@@ -57,7 +60,7 @@ public class World {
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final int samplesPerPixel = 1;
+	private static final int samplesPerPixel = 1024;
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
 
@@ -82,7 +85,7 @@ public class World {
 
 		Transformation worldSphereTransformation = Transformation.translate(1.5, 0, -4);
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(90));
-		Transformation appleTransformation = Transformation.translate(0, -1, -3).append(Transformation.rotateX(90));
+		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
 		Transformation buddhaTransformation = Transformation.translate(0, 0, -2).append(Transformation.scale(2, 2, 2)).append(Transformation.rotateY(180));
 		Transformation bunnyTransformation = Transformation.translate(0, -1, -3).append(Transformation.scale(0.5, 0.5, 0.5));
 
@@ -92,20 +95,20 @@ public class World {
 		Mesh mesh = null;
 
 		// create a world sphere
-//		bvh = new BoundingVolume();
-//		image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-//		SVMatte imageMatteWorld = new SVMatte(
-//				new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-//		imageMatteWorld.setKA(0);
-//		imageMatteWorld.setKD(0.7);
-//		Sphere sphere = new Sphere(imageMatteWorld);
-//		if (useBoundingVolumeHierarchy) {
-//			bvh.addObject(sphere);
-//			bvh.calculateHierarchy();
-//			bvhs.add(new Instance(bvh, true, worldSphereTransformation, null));
-//		} else {
-//			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatteWorld));
-//		}
+		bvh = new BoundingVolume();
+		image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+		SVMatte imageMatteWorld = new SVMatte(
+				new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+		imageMatteWorld.setKA(0);
+		imageMatteWorld.setKD(0.7);
+		Sphere sphere = new Sphere(imageMatteWorld);
+		if (useBoundingVolumeHierarchy) {
+			bvh.addObject(sphere);
+			bvh.calculateHierarchy();
+			bvhs.add(new Instance(bvh, true, worldSphereTransformation, null));
+		} else {
+			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatteWorld));
+		}
 
 		// create house object
 //		bvh = new BoundingVolume();
@@ -191,7 +194,7 @@ public class World {
 //		shapes.add(disk);
 		
 		Emissive emissive = new Emissive();
-		emissive.scaleRadiance(5.0);
+		emissive.scaleRadiance(20.0);
 		emissive.setCE(1, 1, 1);
 		
 		
@@ -203,10 +206,10 @@ public class World {
 		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 		//create rectangle
-		Rectangle rectangle = new Rectangle(new Point3d(-1,2,-5), new Vector3d(0,0,2), new Vector3d(2,0,0), new Vector3d(0,-1,0), emissive);
+		Rectangle rectangle = new Rectangle(new Point3d(-0.5,2,-4), new Vector3d(0,0,1), new Vector3d(1,0,0), new Vector3d(0,-1,0), emissive);
 		Regular regularSampler = new Regular();
 		rectangle.setSampler(regularSampler);
-		rectangle.setShadows(false);
+		rectangle.setShadows(true);
 		shapes.add(rectangle);
 		
 		Light arealight = new AreaLight(rectangle);
@@ -236,7 +239,16 @@ public class World {
 				@Override
 				public void run() {
 					try {
-						Sampler sampler = new Regular();
+						Sampler pixelSampler;
+						Sampler arealightSampler;
+						if(samplesPerPixel == 1){
+							pixelSampler = new Regular();
+							arealightSampler = new Regular();
+						}else{
+							pixelSampler = new Jittered(samplesPerPixel, (tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart),  tile.xStart + 620 * tile.yStart);
+							arealightSampler = new Jittered(samplesPerPixel, ((tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart)) * lights.size(), tile.xStart + 620 * tile.yStart);
+							arealightSampler.shuffleSamples();
+						}
 						// iterate over the contents of the tile
 						for (int y = tile.yStart; y < tile.yEnd; ++y) {
 							for (int x = tile.xStart; x < tile.xEnd; ++x) {
@@ -244,17 +256,15 @@ public class World {
 
 								for (int i = 0; i < samplesPerPixel; i++) {
 									// get sample of sampler
-									Sample sample = sampler.getSampleUnitSquare();
+									Sample sample = pixelSampler.getSampleUnitSquare();
 									sample.x += x;
 									sample.y += y;
 									// create a ray through the center of the
 									// pixel.
 									Ray ray = camera.generateRay(sample);
-									if(sample.x == 120.5 && sample.y == 220.5)
-										System.out.println("test");
 
 									// add to totalcolor
-									RGBColor.add(rayCastTracer.traceRay(ray), color);
+									RGBColor.add(rayCastTracer.traceRay(ray, arealightSampler), color);
 								}
 
 								// get average of the samples

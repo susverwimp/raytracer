@@ -6,6 +6,7 @@ import material.Material;
 import math.Point3d;
 import math.Ray;
 import math.Vector3d;
+import sampling.Sample;
 import util.ShadeRec;
 
 public abstract class GeometricObject implements Comparable<GeometricObject> {
@@ -73,6 +74,10 @@ public abstract class GeometricObject implements Comparable<GeometricObject> {
 	}
 	
 	public Point3d sample(){
+		return null;
+	}
+	
+	public Point3d sample(Sample samplePoint){
 		return null;
 	}
 	

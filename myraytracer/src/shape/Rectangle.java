@@ -66,7 +66,7 @@ public class Rectangle extends GeometricObject {
 			return false;
 		double t = (p0.subtract(shadowRay.origin)).dot(normal) / (shadowRay.direction.dot(normal));
 		
-		if(t <= kEpsilon || t > distance)
+		if(t <= kEpsilon || t > distance - kEpsilon)
 			return false;
 		
 		Point3d p = shadowRay.origin.add(shadowRay.direction.scale(t));
@@ -95,8 +95,14 @@ public class Rectangle extends GeometricObject {
 	}
 	
 	@Override
+	public Point3d sample(Sample samplePoint){
+		return (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));
+	}
+	
+	@Override
 	public double pdf(ShadeRec shadeRec){
-		return invArea;
+//		return invArea;
+		return 1.0;
 	}
 	
 	@Override
