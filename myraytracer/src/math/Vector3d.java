@@ -108,6 +108,12 @@ public class Vector3d implements Cloneable, Comparable<Vector3d> {
 		this.y = y;
 		this.z = z;
 	}
+	
+	public void set(Vector3d vector){
+		this.x = vector.x;
+		this.y = vector.y;
+		this.z = vector.z;
+	}
 
 	/**
 	 * Constructs a {@link Vector3d} equal to this {@link Vector3d} translated by

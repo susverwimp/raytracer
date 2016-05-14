@@ -12,6 +12,6 @@ public abstract class Tracer {
 		this.world = world;
 	}
 	
-	public abstract RGBColor traceRay(Ray ray, Sampler arealightSampler);
+	public abstract RGBColor traceRay(Ray ray, Sampler arealightSampler, int depth, int seed);
 
 }

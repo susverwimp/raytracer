@@ -17,6 +17,7 @@ public class ShadeRec {
 	public Vector3d normal;
 	public Vector2d textureCoords;
 	public Ray ray;
+	public int depth;
 	public Vector3d direction;
 	public World world;
 	public int totalIntersections;
@@ -28,6 +29,10 @@ public class ShadeRec {
 	public Vector3d wi;
 	public Sampler arealightSampler;
 	
+	//for pathtracing
+	public Sampler materialSampler;
+	public double pdf;
+	
 	
 	public ShadeRec(World world) {
 		this.world = world;
@@ -38,7 +43,7 @@ public class ShadeRec {
 		direction = new Vector3d();
 		textureCoords = new Vector2d();
 		t = Double.POSITIVE_INFINITY;
-		
+		depth = 0;
 		samplePoint = new Point3d();
 		lightNormal = new Vector3d();
 		wi = new Vector3d();

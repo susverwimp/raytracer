@@ -12,13 +12,13 @@ public class RayCast extends Tracer {
 	}
 
 	@Override
-	public RGBColor traceRay(Ray ray, Sampler arealightSampler) {
+	public RGBColor traceRay(Ray ray, Sampler arealightSampler, int depth, int seed) {
 		ShadeRec shadeRec = world.hitObjects(ray);
 		if (shadeRec.isHit) {
 			shadeRec.ray = ray;
 			return shadeRec.object.material.shade(shadeRec);
 		}
-		return world.backgroundColor;
+		return World.BACKGROUND_COLOR;
 	}
 
 }

@@ -33,7 +33,7 @@ public class Matte extends Material {
 	@Override
 	public RGBColor shade(ShadeRec shadeRec) {
 		Vector3d wo = shadeRec.ray.direction.scale(-1);
-		RGBColor L = ambientBRDF.rho(shadeRec, wo).multiply(shadeRec.world.ambient.L(shadeRec));
+		RGBColor L = ambientBRDF.rho(shadeRec, wo).scale(shadeRec.world.ambient.L(shadeRec));
 		for(Light light : shadeRec.world.lights){
 			Vector3d wi = light.getDirection(shadeRec);
 			double nDotWi = shadeRec.normal.dot(wi) / (shadeRec.normal.length() * wi.length());
@@ -44,7 +44,7 @@ public class Matte extends Material {
 					inShadow = light.inShadow(shadowRay, shadeRec);
 				}
 				if(!inShadow){
-					RGBColor.add(diffuseBRDF.f(shadeRec, wi, wo).multiply(light.L(shadeRec).scale(nDotWi)), L);
+					RGBColor.add(diffuseBRDF.f(shadeRec, wi, wo).scale(light.L(shadeRec).scale(nDotWi)), L);
 				}
 			}
 		}
@@ -54,7 +54,7 @@ public class Matte extends Material {
 	@Override
 	public RGBColor areaLightShade(ShadeRec shadeRec) {
 		Vector3d wo = shadeRec.ray.direction.scale(-1);
-		RGBColor L = ambientBRDF.rho(shadeRec, wo).multiply(shadeRec.world.ambient.L(shadeRec));
+		RGBColor L = ambientBRDF.rho(shadeRec, wo).scale(shadeRec.world.ambient.L(shadeRec));
 		for(Light light : shadeRec.world.lights){
 			Vector3d wi = light.getDirection(shadeRec);
 			double nDotWi = shadeRec.normal.dot(wi) / (shadeRec.normal.length() * wi.length());
@@ -65,11 +65,22 @@ public class Matte extends Material {
 					inShadow = light.inShadow(shadowRay, shadeRec);
 				}
 				if(!inShadow){
-					RGBColor.add(diffuseBRDF.f(shadeRec, wi, wo).multiply(light.L(shadeRec)).multiply(light.G(shadeRec) * nDotWi).multiply(1.0/light.pdf(shadeRec)) , L);
+					RGBColor.add(diffuseBRDF.f(shadeRec, wi, wo).scale(light.L(shadeRec)).scale(light.G(shadeRec) * nDotWi).scale(1.0/light.pdf(shadeRec)) , L);
 				}
 			}
 		}
 		return L;
+	}
+
+	@Override
+	public RGBColor pathShade(ShadeRec shadeRec) {
+		Vector3d wi = new Vector3d();
+		Vector3d wo = shadeRec.ray.direction.scale(-1);
+		RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
+		double nDotWi = shadeRec.normal.dot(wi);
+		Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
+		
+		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, null, shadeRec.depth + 1, 1).scale(nDotWi / shadeRec.pdf)));
 	}
 
 }

@@ -28,6 +28,10 @@ public class RGBColor {
 		return new RGBColor(r*scalar, g*scalar, b*scalar);
 	}
 	
+	public RGBColor scale(RGBColor color){
+		return new RGBColor(r * color.r, g * color.g, b * color.b);
+	}
+	
 	public static void scale(double scalar, RGBColor destination){
 		destination.r *= scalar;
 		destination.g *= scalar;
@@ -38,14 +42,6 @@ public class RGBColor {
 		destination.r += color.r;
 		destination.g += color.g;
 		destination.b += color.b;
-	}
-	
-	public RGBColor multiply(RGBColor color){
-		return new RGBColor(r * color.r, g * color.g, b * color.b);
-	}
-	
-	public RGBColor multiply(double scalar){
-		return new RGBColor(r * scalar, g * scalar, b * scalar);
 	}
 	
 	@Override

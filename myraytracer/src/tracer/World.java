@@ -44,6 +44,7 @@ import shape.Sphere;
 import shape.trianglemesh.Mesh;
 import shape.trianglemesh.SmoothUVMeshTriangle;
 import texture.Checker3D;
+import texture.ConstantColor;
 import texture.ImageTexture;
 import util.ShadeRec;
 
@@ -54,13 +55,15 @@ public class World {
 	private final ProgressReporter reporter;
 	private final ImagePanel panel;
 
-	private Tracer rayCastTracer;
-	public RGBColor backgroundColor;
-	public Light ambient;
+	public Tracer tracer;
+	public static final int MAX_DEPTH = Integer.MAX_VALUE;
+	public static final int SAMPLES_PER_PIXEL = 16;
+	public static final int BRANCHING_FACTOR = 1;
+	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
+	public Light ambient = new Ambient();
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
-	private static final int samplesPerPixel = 100;
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
 
@@ -72,9 +75,7 @@ public class World {
 		this.buffer = buffer;
 		this.reporter = reporter;
 		this.panel = panel;
-		this.rayCastTracer = new AreaLighting(this);
-		this.backgroundColor = new RGBColor();
-		this.ambient = new Ambient();
+		this.tracer = new AreaLighting(this);
 		build();
 	}
 
@@ -95,20 +96,20 @@ public class World {
 		Mesh mesh = null;
 
 		// create a world sphere
-		bvh = new BoundingVolume();
-		image = ImageIO.read(new File("res/textures/world_texture.jpg"));
-		SVMatte imageMatteWorld = new SVMatte(
-				new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
-		imageMatteWorld.setKA(0);
-		imageMatteWorld.setKD(0.7);
-		Sphere sphere = new Sphere(imageMatteWorld);
-		if (useBoundingVolumeHierarchy) {
-			bvh.addObject(sphere);
-			bvh.calculateHierarchy();
-			bvhs.add(new Instance(bvh, true, worldSphereTransformation, null));
-		} else {
-			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatteWorld));
-		}
+//		bvh = new BoundingVolume();
+//		image = ImageIO.read(new File("res/textures/world_texture.jpg"));
+//		SVMatte imageMatteWorld = new SVMatte(
+//				new ImageTexture(image.getWidth(), image.getHeight(), image, new SphericalMap()));
+//		imageMatteWorld.setKA(0);
+//		imageMatteWorld.setKD(0.7);
+//		Sphere sphere = new Sphere(imageMatteWorld);
+//		if (useBoundingVolumeHierarchy) {
+//			bvh.addObject(sphere);
+//			bvh.calculateHierarchy();
+//			bvhs.add(new Instance(bvh, true, worldSphereTransformation, null));
+//		} else {
+//			shapes.add(new Instance(sphere, true, worldSphereTransformation, imageMatteWorld));
+//		}
 
 		// create house object
 //		bvh = new BoundingVolume();
@@ -130,23 +131,23 @@ public class World {
 //		bvhs.add(new Instance(bvh, true, houseTransformation, null));
 
 		// create apple object with bvh
-		bvh = new BoundingVolume();
-		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
-		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-		imageMatteApple.setKA(0);
-		imageMatteApple.setKD(0.7);
-		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
-		for (int i = 0; i < mesh.indices.length; i += 3) {
-			if (useBoundingVolumeHierarchy) {
-				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
-						imageMatteApple));
-			} else {
-				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
-			}
-		}
-		bvh.calculateHierarchy();
-		bvhs.add(new Instance(bvh, true, appleTransformation, null));
+//		bvh = new BoundingVolume();
+//		image = ImageIO.read(new File("res/textures/apple_texture.jpg"));
+//		SVMatte imageMatteApple = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+//		imageMatteApple.setKA(0);
+//		imageMatteApple.setKD(0.7);
+//		mesh = OBJFileLoader.loadOBJ("res/models/apple.obj");
+//		for (int i = 0; i < mesh.indices.length; i += 3) {
+//			if (useBoundingVolumeHierarchy) {
+//				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+//						imageMatteApple));
+//			} else {
+//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+//						mesh.indices[i + 2], imageMatteApple), true, appleTransformation, null));
+//			}
+//		}
+//		bvh.calculateHierarchy();
+//		bvhs.add(new Instance(bvh, true, appleTransformation, null));
 
 		// create bunny
 //		bvh = new BoundingVolume();
@@ -200,19 +201,50 @@ public class World {
 		
 		
 		// create a plane with black-white checkertexture
-		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
-		checkerMatte.setKA(0);
-		checkerMatte.setKD(0.7);
-		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
+//		SVMatte checkerMatte = new SVMatte(new Checker3D(1, new RGBColor(), new RGBColor(1, 1, 1)));
+//		checkerMatte.setKA(0);
+//		checkerMatte.setKD(0.7);
+//		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
-		//create rectangle
-		Rectangle rectangle = new Rectangle(new Point3d(-0.5,2,-4), new Vector3d(0,0,1), new Vector3d(1,0,0), new Vector3d(0,-1,0), emissive);
-		Regular regularSampler = new Regular();
-		rectangle.setSampler(regularSampler);
-		rectangle.setShadows(true);
-		shapes.add(rectangle);
+		//create house with light
+		SVMatte leftWallColor = new SVMatte(new ConstantColor(new RGBColor(1,0,0)));
+		leftWallColor.setKA(0.0);
+		leftWallColor.setKD(0.7);
+		Rectangle leftWall = new Rectangle(new Point3d(-1,-1,0), new Vector3d(0,0,-2), new Vector3d(0,2,0), new Vector3d(1,0,0), leftWallColor);
+		shapes.add(leftWall);
 		
-		Light arealight = new AreaLight(rectangle);
+		SVMatte rightWallColor = new SVMatte(new ConstantColor(new RGBColor(0,1,0)));
+		rightWallColor.setKA(0.0);
+		rightWallColor.setKD(0.7);
+		Rectangle rightWall = new Rectangle(new Point3d(1,-1,0), new Vector3d(0,0,-2), new Vector3d(0,2,0), new Vector3d(-1,0,0), rightWallColor);
+		shapes.add(rightWall);
+		
+		SVMatte backWallColor = new SVMatte(new ConstantColor(new RGBColor(0.9,0.7,0.8)));
+		backWallColor.setKA(0.0);
+		backWallColor.setKD(0.7);
+		Rectangle backWall = new Rectangle(new Point3d(-1,-1,-2), new Vector3d(0,2,0), new Vector3d(2,0,0), new Vector3d(0,0,1), backWallColor);
+		shapes.add(backWall);
+		
+		SVMatte floorColor = new SVMatte(new ConstantColor(new RGBColor(0.9,0.7,0.8)));
+		floorColor.setKA(0.0);
+		floorColor.setKD(0.7);
+		Rectangle floor = new Rectangle(new Point3d(-1,-1,0), new Vector3d(0,0,-2), new Vector3d(2,0,0), new Vector3d(0,1,0), floorColor);
+		shapes.add(floor);
+		
+		SVMatte ceilingColor = new SVMatte(new ConstantColor(new RGBColor(0.9,0.7,0.8)));
+		ceilingColor.setKA(0.0);
+		ceilingColor.setKD(0.7);
+		Rectangle ceiling = new Rectangle(new Point3d(-1,1,0), new Vector3d(0,0,-2), new Vector3d(2,0,0), new Vector3d(0,-1,0), ceilingColor);
+		shapes.add(ceiling);
+		
+		
+		
+		//create rectangle
+		Rectangle lightRectangle = new Rectangle(new Point3d(-0.1,0.4,-1), new Vector3d(0,0,0.2), new Vector3d(0.2,0,0), new Vector3d(0,-1,0), emissive);
+		lightRectangle.setShadows(true);
+		shapes.add(lightRectangle);
+		
+		Light arealight = new AreaLight(lightRectangle);
 		arealight.setShadows(true);
 		lights.add(arealight);
 //		lights.add(new PointLight(100, new RGBColor(1, 1, 1), new Point3d(1, 1, 0)));
@@ -239,14 +271,15 @@ public class World {
 				@Override
 				public void run() {
 					try {
+						int seed = tile.xStart + tile.getWidth() * tile.yStart;
 						Sampler pixelSampler;
 						Sampler arealightSampler;
-						if(samplesPerPixel == 1){
+						if(SAMPLES_PER_PIXEL == 1){
 							pixelSampler = new Regular();
 							arealightSampler = new Regular();
 						}else{
-							pixelSampler = new Jittered(samplesPerPixel, (tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart),  tile.xStart + 620 * tile.yStart);
-							arealightSampler = new Jittered(samplesPerPixel, ((tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart)) * lights.size(), tile.xStart + 620 * tile.yStart);
+							pixelSampler = new Jittered(SAMPLES_PER_PIXEL, (tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart),  tile.xStart + tile.getWidth() * tile.yStart);
+							arealightSampler = new Jittered(SAMPLES_PER_PIXEL, ((tile.yEnd - tile.yStart) * (tile.xEnd - tile.xStart)) * lights.size(), tile.xStart + tile.getWidth() * tile.yStart);
 							arealightSampler.shuffleSamples();
 						}
 						// iterate over the contents of the tile
@@ -254,7 +287,7 @@ public class World {
 							for (int x = tile.xStart; x < tile.xEnd; ++x) {
 								RGBColor color = new RGBColor();
 
-								for (int i = 0; i < samplesPerPixel; i++) {
+								for (int i = 0; i < SAMPLES_PER_PIXEL; i++) {
 									// get sample of sampler
 									Sample sample = pixelSampler.getSampleUnitSquare();
 									sample.x += x;
@@ -264,11 +297,11 @@ public class World {
 									Ray ray = camera.generateRay(sample);
 
 									// add to totalcolor
-									RGBColor.add(rayCastTracer.traceRay(ray, arealightSampler), color);
+									RGBColor.add(tracer.traceRay(ray, arealightSampler, 0, seed), color);
 								}
 
 								// get average of the samples
-								RGBColor.scale(1.0 / samplesPerPixel, color);
+								RGBColor.scale(1.0 / SAMPLES_PER_PIXEL, color);
 
 								if (OUT_OF_GAMUT)
 									maxToOne(color);

@@ -22,7 +22,7 @@ public class Emissive extends Material {
 	}
 	
 	public RGBColor getLE(ShadeRec shadeRec){
-		return ce.multiply(ls);
+		return ce.scale(ls);
 	}
 	
 	@Override
@@ -36,6 +36,11 @@ public class Emissive extends Material {
 			return ce.scale(ls);
 		}
 		return new RGBColor();
+	}
+
+	@Override
+	public RGBColor pathShade(ShadeRec shadeRec) {
+		return getLE(shadeRec);
 	}
 
 }

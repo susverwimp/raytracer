@@ -13,4 +13,8 @@ public abstract class BRDF {
 	public abstract RGBColor sampleF(ShadeRec shadeRec, Vector3d wi, Vector3d wo);
 	public abstract RGBColor rho(ShadeRec shadeRec, Vector3d wo);
 
+	public void setSampler(Sampler sampler){
+		this.sampler = sampler;
+	}
+	
 }

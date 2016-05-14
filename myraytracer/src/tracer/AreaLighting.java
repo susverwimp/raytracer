@@ -2,7 +2,7 @@ package tracer;
 
 import math.RGBColor;
 import math.Ray;
-import sampling.Regular;
+import sampling.Jittered;
 import sampling.Sampler;
 import util.ShadeRec;
 
@@ -13,7 +13,7 @@ public class AreaLighting extends Tracer {
 	}
 
 	@Override
-	public RGBColor traceRay(Ray ray, Sampler arealightSampler) {
+	public RGBColor traceRay(Ray ray, Sampler arealightSampler, int depth, int seed) {
 		ShadeRec shadeRec = world.hitObjects(ray);
 		
 		if(shadeRec.isHit){
@@ -21,7 +21,7 @@ public class AreaLighting extends Tracer {
 			shadeRec.arealightSampler = arealightSampler;
 			return shadeRec.object.material.areaLightShade(shadeRec);
 		}
-		return world.backgroundColor;
+		return World.BACKGROUND_COLOR;
 	}
 
 }
