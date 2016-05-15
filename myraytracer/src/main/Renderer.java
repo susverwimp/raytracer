@@ -107,7 +107,7 @@ public class Renderer {
 		final ImagePanel panel;
 		if (gui) {
 			panel = new ImagePanel(width, height, sensitivity, gamma);
-			RenderFrame frame = new RenderFrame("Spheres", panel);
+			RenderFrame frame = new RenderFrame("Sus Verwimp Ray Tracer", panel);
 			reporter.addProgressListener(frame);
 		} else
 			panel = null;

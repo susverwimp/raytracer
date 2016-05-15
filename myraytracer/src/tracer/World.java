@@ -75,7 +75,7 @@ public class World {
 		this.buffer = buffer;
 		this.reporter = reporter;
 		this.panel = panel;
-		this.tracer = new AreaLighting(this);
+		this.tracer = new PathTracer(this);
 		build();
 	}
 
@@ -88,7 +88,7 @@ public class World {
 		Transformation houseTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateY(90));
 		Transformation appleTransformation = Transformation.translate(0, -1, -2).append(Transformation.rotateX(90));
 		Transformation buddhaTransformation = Transformation.translate(0, 0, -2).append(Transformation.scale(2, 2, 2)).append(Transformation.rotateY(180));
-		Transformation bunnyTransformation = Transformation.translate(0, -1, -3).append(Transformation.scale(0.5, 0.5, 0.5));
+		Transformation bunnyTransformation = Transformation.translate(0, -0.5, -1.2).append(Transformation.scale(0.1, 0.1, 0.1));
 
 		List<GeometricObject> bvhs = new ArrayList<>();
 		BoundingVolume bvh = null;
@@ -150,22 +150,22 @@ public class World {
 //		bvhs.add(new Instance(bvh, true, appleTransformation, null));
 
 		// create bunny
-//		bvh = new BoundingVolume();
-//		SVMatte constantMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
-//		constantMatte.setKA(0);
-//		constantMatte.setKD(0.7);
-//		mesh = OBJFileLoader.loadOBJ("res/models/bunny.obj");
-//		for (int i = 0; i < mesh.indices.length; i += 3) {
-//			if (useBoundingVolumeHierarchy) {
-//				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
-//						constantMatte));
-//			} else {
-//				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-//						mesh.indices[i + 2], constantMatte), true, bunnyTransformation, null));
-//			}
-//		}
-//		bvh.calculateHierarchy();
-//		bvhs.add(new Instance(bvh, true, bunnyTransformation, null));
+		bvh = new BoundingVolume();
+		SVMatte constantMatte = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.5, 0.5)));
+		constantMatte.setKA(0);
+		constantMatte.setKD(0.7);
+		mesh = OBJFileLoader.loadOBJ("res/models/bunny.obj");
+		for (int i = 0; i < mesh.indices.length; i += 3) {
+			if (useBoundingVolumeHierarchy) {
+				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+						constantMatte));
+			} else {
+				shapes.add(new Instance(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+						mesh.indices[i + 2], constantMatte), true, bunnyTransformation, null));
+			}
+		}
+		bvh.calculateHierarchy();
+		bvhs.add(new Instance(bvh, true, bunnyTransformation, null));
 
 		// create buddha object
 //		bvh = new BoundingVolume();
@@ -195,7 +195,7 @@ public class World {
 //		shapes.add(disk);
 		
 		Emissive emissive = new Emissive();
-		emissive.scaleRadiance(20.0);
+		emissive.scaleRadiance(10.0);
 		emissive.setCE(1, 1, 1);
 		
 		
@@ -240,7 +240,7 @@ public class World {
 		
 		
 		//create rectangle
-		Rectangle lightRectangle = new Rectangle(new Point3d(-0.1,0.4,-1), new Vector3d(0,0,0.2), new Vector3d(0.2,0,0), new Vector3d(0,-1,0), emissive);
+		Rectangle lightRectangle = new Rectangle(new Point3d(-0.1,0.999,-1.5), new Vector3d(0,0,0.2), new Vector3d(0.2,0,0), new Vector3d(0,-1,0), emissive);
 		lightRectangle.setShadows(true);
 		shapes.add(lightRectangle);
 		
