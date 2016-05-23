@@ -7,6 +7,7 @@ import math.Ray;
 import math.Vector3d;
 import texture.Texture;
 import util.ShadeRec;
+import world.World;
 
 public class SVMatte extends Material {
 	
@@ -92,13 +93,19 @@ public class SVMatte extends Material {
 
 	@Override
 	public RGBColor pathShade(ShadeRec shadeRec) {
-		Vector3d wi = new Vector3d();
 		Vector3d wo = shadeRec.ray.direction.scale(-1);
-		RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
-		double nDotWi = shadeRec.normal.dot(wi);
-		Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
-		
-		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, null, shadeRec.depth + 1, 1).scale(nDotWi / shadeRec.pdf)));
+		RGBColor result = new RGBColor();
+		for(int i = 0; i < World.BRANCHING_FACTOR; i++){
+			Vector3d wi = new Vector3d();
+			RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
+			double nDotWi = shadeRec.normal.dot(wi);
+			Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
+			RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi / shadeRec.pdf))), result);  
+		}
+		// get average of the samples
+		RGBColor.scale(1.0 / World.BRANCHING_FACTOR, result);
+		return result;
+//		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, null, shadeRec.depth + 1, 1).scale(nDotWi / shadeRec.pdf)));
 	}
 	
 	

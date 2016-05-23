@@ -3,6 +3,7 @@ package tracer;
 import math.RGBColor;
 import math.Ray;
 import sampling.Sampler;
+import world.World;
 
 public abstract class Tracer {
 	
@@ -12,6 +13,6 @@ public abstract class Tracer {
 		this.world = world;
 	}
 	
-	public abstract RGBColor traceRay(Ray ray, Sampler arealightSampler, int depth, int seed);
+	public abstract RGBColor traceRay(Ray ray, Sampler sampler, int depth);
 
 }

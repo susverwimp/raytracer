@@ -6,7 +6,7 @@ import math.Vector2d;
 import math.Vector3d;
 import sampling.Sampler;
 import shape.GeometricObject;
-import tracer.World;
+import world.World;
 
 public class ShadeRec {
 

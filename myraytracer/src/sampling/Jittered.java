@@ -5,7 +5,7 @@ import java.util.Random;
 public class Jittered extends Sampler {
 
 	public Jittered(int numberOfSamples, int numberOfSets, long seed) {
-		super(numberOfSamples, numberOfSets, new Random(seed));
+		super(numberOfSamples, numberOfSets, seed);
 	}
 
 	@Override

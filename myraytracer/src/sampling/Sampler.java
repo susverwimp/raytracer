@@ -13,10 +13,10 @@ public abstract class Sampler {
 	public Point3d[] hemisphereSamples;
 	public int count;
 	
-	public Sampler(int numberOfSamples, int numberOfSets, Random random){
+	public Sampler(int numberOfSamples, int numberOfSets, long seed){
 		this.numberOfSamples = numberOfSamples;
 		this.numberOfSets = numberOfSets;
-		this.random = random;
+		this.random = new Random(seed);
 		samples = new Sample[numberOfSamples * numberOfSets];
 		hemisphereSamples = new Point3d[numberOfSamples * numberOfSets];
 		generateSamples();
@@ -29,7 +29,8 @@ public abstract class Sampler {
 	}
 	
 	public Point3d getSampleUnitHemisphere(){
-		return new Point3d(hemisphereSamples[count++ % (numberOfSamples * numberOfSets)]);
+		return new Point3d(hemisphereSamples[count++]);
+//		return new Point3d(hemisphereSamples[count++ % (numberOfSamples * numberOfSets)]);
 	}
 	
 	public void mapSamplesToHemisphere(double e){

@@ -4,6 +4,7 @@ import math.RGBColor;
 import math.Ray;
 import sampling.Sampler;
 import util.ShadeRec;
+import world.World;
 
 public class RayCast extends Tracer {
 
@@ -12,7 +13,7 @@ public class RayCast extends Tracer {
 	}
 
 	@Override
-	public RGBColor traceRay(Ray ray, Sampler arealightSampler, int depth, int seed) {
+	public RGBColor traceRay(Ray ray, Sampler sampler, int depth) {
 		ShadeRec shadeRec = world.hitObjects(ray);
 		if (shadeRec.isHit) {
 			shadeRec.ray = ray;

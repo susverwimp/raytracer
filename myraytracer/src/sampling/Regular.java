@@ -1,11 +1,9 @@
 package sampling;
 
-import java.util.Random;
-
 public class Regular extends Sampler {
 
 	public Regular() {
-		super(0,0, new Random());
+		super(0, 0, 0);
 	}
 
 	@Override
