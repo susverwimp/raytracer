@@ -56,7 +56,7 @@ public class World {
 	private final ImagePanel panel;
 
 	public Tracer tracer;
-	public static final int MAX_DEPTH = Integer.MAX_VALUE;
+	public static final int MAX_DEPTH = 5;
 	public static final int SAMPLES_PER_PIXEL = 16;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
@@ -75,6 +75,7 @@ public class World {
 		this.buffer = buffer;
 		this.reporter = reporter;
 		this.panel = panel;
+//		this.tracer = new AreaLighting(this);
 		this.tracer = new PathTracer(this);
 		build();
 	}
@@ -206,14 +207,14 @@ public class World {
 //		checkerMatte.setKD(0.7);
 //		shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
-		//create house with light
-		SVMatte leftWallColor = new SVMatte(new ConstantColor(new RGBColor(1,0,0)));
+		//create cornell box
+		SVMatte leftWallColor = new SVMatte(new ConstantColor(new RGBColor(1,0.1,0.1)));
 		leftWallColor.setKA(0.0);
 		leftWallColor.setKD(0.7);
 		Rectangle leftWall = new Rectangle(new Point3d(-1,-1,0), new Vector3d(0,0,-2), new Vector3d(0,2,0), new Vector3d(1,0,0), leftWallColor);
 		shapes.add(leftWall);
 		
-		SVMatte rightWallColor = new SVMatte(new ConstantColor(new RGBColor(0,1,0)));
+		SVMatte rightWallColor = new SVMatte(new ConstantColor(new RGBColor(0.1,1,0.1)));
 		rightWallColor.setKA(0.0);
 		rightWallColor.setKD(0.7);
 		Rectangle rightWall = new Rectangle(new Point3d(1,-1,0), new Vector3d(0,0,-2), new Vector3d(0,2,0), new Vector3d(-1,0,0), rightWallColor);
@@ -240,7 +241,7 @@ public class World {
 		
 		
 		//create rectangle
-		Rectangle lightRectangle = new Rectangle(new Point3d(-0.1,0.999,-1.5), new Vector3d(0,0,0.2), new Vector3d(0.2,0,0), new Vector3d(0,-1,0), emissive);
+		Rectangle lightRectangle = new Rectangle(new Point3d(-0.1,0.999,-1.5), new Vector3d(0,0,0.4), new Vector3d(0.4,0,0), new Vector3d(0,-1,0), emissive);
 		lightRectangle.setShadows(true);
 		shapes.add(lightRectangle);
 		

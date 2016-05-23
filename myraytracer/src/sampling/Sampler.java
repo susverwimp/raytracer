@@ -47,4 +47,17 @@ public abstract class Sampler {
 		}
 	}
 	
+	public void mapSamplesToCosineHemisphere(){
+		int index = 0;
+		for(Sample sample : samples){
+			double r = Math.sqrt(sample.x);
+			double theta = 2 * Math.PI * sample.y;
+		 
+		    double x = r * Math.cos(theta);
+		    double y = r * Math.sin(theta);
+		 
+		    hemisphereSamples[index++] = new Point3d(x, y, Math.sqrt(Math.max(0.0f, 1 - sample.x)));
+		}
+	}
+	
 }

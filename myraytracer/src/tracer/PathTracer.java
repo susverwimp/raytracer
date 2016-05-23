@@ -20,7 +20,7 @@ public class PathTracer extends Tracer {
 			ShadeRec shadeRec = world.hitObjects(ray);
 			if(shadeRec.isHit){
 				Sampler materialSampler = new PureRandom(World.BRANCHING_FACTOR, 1, new Random().nextInt());
-				materialSampler.mapSamplesToHemisphere(1);
+				materialSampler.mapSamplesToCosineHemisphere();
 				shadeRec.materialSampler = materialSampler;
 				
 				shadeRec.depth = depth;
