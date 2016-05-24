@@ -43,8 +43,8 @@ public class World {
 
 	public Camera camera;
 	public Tracer tracer;
-	public static final int MAX_DEPTH = 4;
-	public static final int SAMPLES_PER_PIXEL = 256;
+	public static final int MAX_DEPTH = 5;
+	public static final int SAMPLES_PER_PIXEL = 64;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
 	public Light ambient = new Ambient();

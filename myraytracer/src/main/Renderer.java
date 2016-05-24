@@ -18,8 +18,8 @@ public class Renderer {
 	 *            command line arguments.
 	 */
 	public static void main(String[] arguments) throws IOException {
-		int width = 300;
-		int height = 300;
+		int width = 620;
+		int height = 620;
 		double sensitivity = 1.0;
 		double gamma = 2.2;
 		boolean gui = true;
