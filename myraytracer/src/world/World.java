@@ -31,6 +31,7 @@ import sampling.Sample;
 import sampling.Sampler;
 import shape.GeometricObject;
 import tracer.AreaLighting;
+import tracer.HybridPathTracing;
 import tracer.PathTracer;
 import tracer.Tracer;
 import util.ShadeRec;
@@ -43,7 +44,7 @@ public class World {
 
 	public Camera camera;
 	public Tracer tracer;
-	public static final int MAX_DEPTH = 5;
+	public static final int MAX_DEPTH = 1;
 	public static final int SAMPLES_PER_PIXEL = 64;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
@@ -77,7 +78,7 @@ public class World {
 		} else
 			panel = null;
 		
-		WorldBuilder.build(WorldBuilder.CORNELL_BOX_PATH_TRACING, width, height, this);
+		WorldBuilder.build(WorldBuilder.CORNELL_BOX_HYBRID_PATH_TRACING, width, height, this);
 	}
 
 	public void renderScene() {
@@ -105,7 +106,7 @@ public class World {
 							pixelSampler = new Regular();
 							if(tracer instanceof AreaLighting)
 								sampler = new Regular();
-							else if(tracer instanceof PathTracer){
+							else if(tracer instanceof PathTracer || tracer instanceof HybridPathTracing){
 								int totalSamples = 0;
 								if(BRANCHING_FACTOR <= 1)
 									totalSamples = MAX_DEPTH;
@@ -120,7 +121,7 @@ public class World {
 							if(tracer instanceof AreaLighting){
 								sampler = new Jittered(SAMPLES_PER_PIXEL, tile.getWidth() * tile.getHeight() * lights.size(), tile.xStart + tile.getWidth() * tile.yStart);
 								sampler.shuffleSamples();
-							}else if(tracer instanceof PathTracer){
+							}else if(tracer instanceof PathTracer || tracer instanceof HybridPathTracing){
 								int totalSamples = 0;
 								if(BRANCHING_FACTOR <= 1)
 									totalSamples = MAX_DEPTH;

@@ -27,10 +27,12 @@ import texture.Checker3D;
 import texture.ConstantColor;
 import texture.ImageTexture;
 import tracer.AreaLighting;
+import tracer.HybridPathTracing;
 import tracer.PathTracer;
 
 public class WorldBuilder {
 
+	public static final String CORNELL_BOX_HYBRID_PATH_TRACING = "cornellbox-hybridpathtracing";
 	public static final String CORNELL_BOX_PATH_TRACING = "cornellbox-pathtracing";
 	public static final String CORNELL_BOX_AREALIGHT_TRACING = "cornellbox-arealighting";
 	public static final String APPLE_WITH_FLOOR_WITH_BHV = "apple_with_floor_with_bhv";
@@ -41,7 +43,24 @@ public class WorldBuilder {
 		/**********************************************************************
 		 * Initialize the scene
 		 *********************************************************************/
-		if (scene.equals(CORNELL_BOX_PATH_TRACING)) {
+		if(scene.equals(CORNELL_BOX_HYBRID_PATH_TRACING)){
+			createCornellBoxWithoutLight(width, height, world);
+
+			// create light
+			Emissive emissive = new Emissive();
+			emissive.scaleRadiance(1.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
+					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
+			lightRectangle.setShadows(true);
+			world.shapes.add(lightRectangle);
+			
+			world.lights.add(new AreaLight(lightRectangle));
+
+			world.tracer = new HybridPathTracing(world);
+		}
+		else if (scene.equals(CORNELL_BOX_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
 			// create light
@@ -183,14 +202,14 @@ public class WorldBuilder {
 				new Vector3d(-1, 0, 0), rightWallColor);
 		world.shapes.add(rightWall);
 
-		SVMatte backWallColor = new SVMatte(new ConstantColor(new RGBColor(0.9, 0.7, 0.8)));
+		SVMatte backWallColor = new SVMatte(new ConstantColor(new RGBColor(0.5, 0.7, 0.5)));
 		backWallColor.setKA(0.0);
 		backWallColor.setKD(0.7);
 		Rectangle backWall = new Rectangle(new Point3d(-1, -1, -2), new Vector3d(0, 2, 0), new Vector3d(2, 0, 0),
 				new Vector3d(0, 0, 1), backWallColor);
 		world.shapes.add(backWall);
 
-		SVMatte floorColor = new SVMatte(new ConstantColor(new RGBColor(0.9, 0.7, 0.8)));
+		SVMatte floorColor = new SVMatte(new ConstantColor(new RGBColor(0.9, 0.7, 0.5)));
 		floorColor.setKA(0.0);
 		floorColor.setKD(0.7);
 		Rectangle floor = new Rectangle(new Point3d(-1, -1, 0), new Vector3d(0, 0, -2), new Vector3d(2, 0, 0),

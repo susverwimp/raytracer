@@ -83,4 +83,10 @@ public class Matte extends Material {
 		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi / shadeRec.pdf)));
 	}
 
+	@Override
+	public RGBColor hybridPathShade(ShadeRec shadeRec) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

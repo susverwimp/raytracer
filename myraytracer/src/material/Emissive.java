@@ -43,4 +43,9 @@ public class Emissive extends Material {
 		return getLE(shadeRec);
 	}
 
+	@Override
+	public RGBColor hybridPathShade(ShadeRec shadeRec) {
+		return getLE(shadeRec);
+	}
+
 }

@@ -9,7 +9,7 @@ import util.ShadeRec;
 
 public class AreaLight extends Light {
 
-	private GeometricObject object;
+	public GeometricObject object;
 	private Material material;
 	
 	public AreaLight(GeometricObject object){
