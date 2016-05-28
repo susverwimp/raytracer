@@ -1,10 +1,7 @@
 package tracer;
 
-import java.util.Random;
-
 import math.RGBColor;
 import math.Ray;
-import sampling.PureRandom;
 import sampling.Sampler;
 import util.ShadeRec;
 import world.World;
@@ -16,13 +13,13 @@ public class PathTracer extends Tracer {
 	}
 
 	@Override
-	public RGBColor traceRay(Ray ray, Sampler sampler, int depth) {
-		if(depth <= World.MAX_DEPTH){
+	public RGBColor traceRay(Ray ray, Sampler arealightSampler, Sampler materialSampler, int depth) {
+		if(depth <= World.MAX_BOUNCES){
 			ShadeRec shadeRec = world.hitObjects(ray);
 			if(shadeRec.isHit){
 //				Sampler materialSampler = new PureRandom(World.BRANCHING_FACTOR, 1, new Random().nextLong());
 //				materialSampler.mapSamplesToCosineHemisphere();
-				shadeRec.materialSampler = sampler;
+				shadeRec.materialSampler = materialSampler;
 				
 				shadeRec.depth = depth;
 				shadeRec.ray = ray;

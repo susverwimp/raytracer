@@ -17,7 +17,7 @@ public class SVLambertian extends BRDF {
 	
 	@Override
 	public RGBColor f(ShadeRec shadeRec, Vector3d wi, Vector3d wo) {
-		return (cd.getColor(shadeRec).scale(kd / Math.PI));
+		return (cd.getColor(shadeRec).scale(kd));
 	}
 
 	@Override
@@ -33,9 +33,10 @@ public class SVLambertian extends BRDF {
 		Point3d sample = shadeRec.materialSampler.getSampleUnitHemisphere();
 		
 		wi.set(u.scale(sample.x).add(v.scale(sample.y)).add(w.scale(sample.z)).normalize());
-		shadeRec.pdf = shadeRec.normal.dot(wi) / Math.PI;
+//		shadeRec.pdf = shadeRec.normal.dot(wi) / Math.PI;
 		
-		return (cd.getColor(shadeRec).scale(kd / Math.PI));
+//		return (cd.getColor(shadeRec).scale(kd / Math.PI));
+		return (cd.getColor(shadeRec).scale(kd));
 	}
 
 }

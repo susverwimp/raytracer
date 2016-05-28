@@ -80,7 +80,7 @@ public class Matte extends Material {
 		double nDotWi = shadeRec.normal.dot(wi);
 		Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
 		
-		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi / shadeRec.pdf)));
+		return (f.scale(shadeRec.world.tracer.traceRay(reflectedRay, null, shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi / shadeRec.pdf)));
 	}
 
 	@Override

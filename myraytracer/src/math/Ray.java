@@ -1,5 +1,7 @@
 package math;
 
+import material.Material;
+
 /**
  * Represents an {@link Ray} in three dimensional space starting at a given
  * {@link Point3d} and extending infinitely in a given direction.
@@ -17,6 +19,8 @@ public class Ray implements Cloneable {
 	 * The direction the ray is pointing to.
 	 */
 	public final Vector3d direction;
+	
+	public Material originatingMaterial;
 
 	/**
 	 * Creates a new {@link Ray} starting at the given origin and propagating

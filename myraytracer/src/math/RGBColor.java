@@ -38,6 +38,10 @@ public class RGBColor {
 		destination.b *= scalar;
 	}
 	
+	public RGBColor add(RGBColor color){
+		return new RGBColor(r + color.r, g + color.g, b + color.b);
+	}
+	
 	public static void add(RGBColor color, RGBColor destination){
 		destination.r += color.r;
 		destination.g += color.g;

@@ -13,6 +13,7 @@ public abstract class GeometricObject implements Comparable<GeometricObject> {
 	
 	public Material material;
 	public boolean shadows = true;
+	public double invArea;
 	public static final double kEpsilon = 1e-6;
 	
 	public static final Comparator<GeometricObject> xAxisComparator = new Comparator<GeometricObject>() {

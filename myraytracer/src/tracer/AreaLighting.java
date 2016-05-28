@@ -13,12 +13,12 @@ public class AreaLighting extends Tracer {
 	}
 
 	@Override
-	public RGBColor traceRay(Ray ray, Sampler sampler, int depth) {
+	public RGBColor traceRay(Ray ray, Sampler arealightSampler, Sampler materialSampler, int depth) {
 		ShadeRec shadeRec = world.hitObjects(ray);
 		
 		if(shadeRec.isHit){
 			shadeRec.ray = ray;
-			shadeRec.arealightSampler = sampler;
+			shadeRec.arealightSampler = arealightSampler;
 			return shadeRec.object.material.areaLightShade(shadeRec);
 		}
 		return World.BACKGROUND_COLOR;

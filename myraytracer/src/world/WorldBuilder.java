@@ -11,6 +11,7 @@ import light.AreaLight;
 import light.Light;
 import loader.OBJFileLoader;
 import material.Emissive;
+import material.SVReflective;
 import material.SVMatte;
 import math.Point3d;
 import math.RGBColor;
@@ -35,6 +36,8 @@ public class WorldBuilder {
 	public static final String CORNELL_BOX_HYBRID_PATH_TRACING = "cornellbox-hybridpathtracing";
 	public static final String CORNELL_BOX_PATH_TRACING = "cornellbox-pathtracing";
 	public static final String CORNELL_BOX_AREALIGHT_TRACING = "cornellbox-arealighting";
+	public static final String CAUSTICS_PATH_TRACING = "caustics_pathtracing";
+	public static final String CAUSTICS_HYBRID_PATH_TRACING = "caustics_hybridpathtracing";
 	public static final String APPLE_WITH_FLOOR_WITH_BHV = "apple_with_floor_with_bhv";
 	public static final String APPLE_WITH_FLOOR_WITHOUT_BHV = "apple_with_floor_without_bhv";
 
@@ -43,7 +46,7 @@ public class WorldBuilder {
 		/**********************************************************************
 		 * Initialize the scene
 		 *********************************************************************/
-		if(scene.equals(CORNELL_BOX_HYBRID_PATH_TRACING)){
+		if (scene.equals(CORNELL_BOX_HYBRID_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
 			// create light
@@ -55,17 +58,16 @@ public class WorldBuilder {
 					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
 			lightRectangle.setShadows(true);
 			world.shapes.add(lightRectangle);
-			
+
 			world.lights.add(new AreaLight(lightRectangle));
 
 			world.tracer = new HybridPathTracing(world);
-		}
-		else if (scene.equals(CORNELL_BOX_PATH_TRACING)) {
+		} else if (scene.equals(CORNELL_BOX_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(10.0);
+			emissive.scaleRadiance(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -79,7 +81,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(10.0);
+			emissive.scaleRadiance(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -92,6 +94,126 @@ public class WorldBuilder {
 			world.lights.add(arealight);
 
 			world.tracer = new AreaLighting(world);
+		} else if (scene.equals(CAUSTICS_PATH_TRACING)) {
+			// create light
+			Emissive emissive = new Emissive();
+			emissive.scaleRadiance(1.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.3, -1.5), new Vector3d(0, 0, 0.1),
+					new Vector3d(0.1, -0.1, 0), new Vector3d(-1, -1, 0), emissive);
+			lightRectangle.setShadows(true);
+			world.shapes.add(lightRectangle);
+
+			Light arealight = new AreaLight(lightRectangle);
+			arealight.setShadows(true);
+			world.lights.add(arealight);
+
+			BufferedImage image;
+			try {
+				Transformation floorTransformation = Transformation.translate(0, -1, -1.3);
+				image = ImageIO.read(new File("res/textures/wood_texture.jpg"));
+				SVMatte floorColor = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+				floorColor.setKA(0.0);
+				floorColor.setKD(0.7);
+				BoundingVolume bvh = new BoundingVolume();
+
+				Mesh mesh = OBJFileLoader.loadOBJ("res/models/plane.obj");
+				for (int i = 0; i < mesh.indices.length; i += 3) {
+					bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+							mesh.indices[i + 2], floorColor));
+				}
+				bvh.calculateHierarchy();
+				world.shapes.add(new Instance(bvh, true, floorTransformation, null));
+
+				// Rectangle floor = new Rectangle(new Point3d(-1, -1, 0), new
+				// Vector3d(0, 0, -2), new Vector3d(2, 0, 0),
+				// new Vector3d(0, 1, 0), floorColor);
+				// world.shapes.add(floor);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// reflective ring
+			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(0.7,1,0.6)));
+			ringColor.setKR(1);
+			Transformation ringTransformation = Transformation.translate(0, -0.95, -1.3)
+					.append(Transformation.scale(0.2, 0.2, 0.2));
+
+			BoundingVolume bvh = new BoundingVolume();
+
+			Mesh mesh = OBJFileLoader.loadOBJ("res/models/ring.obj");
+			for (int i = 0; i < mesh.indices.length; i += 3) {
+				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+						ringColor));
+			}
+			bvh.calculateHierarchy();
+			world.shapes.add(new Instance(bvh, true, ringTransformation, null));
+
+			world.tracer = new PathTracer(world);
+
+			world.camera = new PerspectiveCamera(width, height, new Point3d(0.2, -0.6, -1.3),
+					new Point3d(0, -0.95, -1.3), new Vector3d(0, 1, 0), 90);
+		} else if (scene.equals(CAUSTICS_HYBRID_PATH_TRACING)) {
+			// create light
+			Emissive emissive = new Emissive();
+			emissive.scaleRadiance(1.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.3, -1.5), new Vector3d(0, 0, 0.4),
+					new Vector3d(0.4, -0.4, 0), new Vector3d(-1, -1, 0), emissive);
+			lightRectangle.setShadows(true);
+			world.shapes.add(lightRectangle);
+
+			Light arealight = new AreaLight(lightRectangle);
+			arealight.setShadows(true);
+			world.lights.add(arealight);
+
+			BufferedImage image;
+			try {
+				Transformation floorTransformation = Transformation.translate(0, -1, -1.3);
+				image = ImageIO.read(new File("res/textures/wood_texture.jpg"));
+				SVMatte floorColor = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
+				floorColor.setKA(0.0);
+				floorColor.setKD(0.7);
+				BoundingVolume bvh = new BoundingVolume();
+
+				Mesh mesh = OBJFileLoader.loadOBJ("res/models/plane.obj");
+				for (int i = 0; i < mesh.indices.length; i += 3) {
+					bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
+							mesh.indices[i + 2], floorColor));
+				}
+				bvh.calculateHierarchy();
+				world.shapes.add(new Instance(bvh, true, floorTransformation, null));
+
+				// Rectangle floor = new Rectangle(new Point3d(-1, -1, 0), new
+				// Vector3d(0, 0, -2), new Vector3d(2, 0, 0),
+				// new Vector3d(0, 1, 0), floorColor);
+				// world.shapes.add(floor);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// reflective ring
+			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(1, 1, 1)));
+			ringColor.setKR(1);
+			Transformation ringTransformation = Transformation.translate(0, -0.95, -1.3)
+					.append(Transformation.scale(0.2, 0.2, 0.2));
+
+			BoundingVolume bvh = new BoundingVolume();
+
+			Mesh mesh = OBJFileLoader.loadOBJ("res/models/ring.obj");
+			for (int i = 0; i < mesh.indices.length; i += 3) {
+				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+						ringColor));
+			}
+			bvh.calculateHierarchy();
+			world.shapes.add(new Instance(bvh, true, ringTransformation, null));
+
+			world.tracer = new HybridPathTracing(world);
+
+			world.camera = new PerspectiveCamera(width, height, new Point3d(0.2, -0.6, -1.3),
+					new Point3d(0, -0.95, -1.3), new Vector3d(0, 1, 0), 90);
 		} else if (scene.equals(APPLE_WITH_FLOOR_WITH_BHV)) {
 			try {
 				Transformation appleTransformation = Transformation.translate(0, -1, -2)
@@ -222,18 +344,24 @@ public class WorldBuilder {
 		Rectangle ceiling = new Rectangle(new Point3d(-1, 1, 0), new Vector3d(0, 0, -2), new Vector3d(2, 0, 0),
 				new Vector3d(0, -1, 0), ceilingColor);
 		world.shapes.add(ceiling);
-		
-		Transformation smallSphereTransformation = Transformation.translate(-0.7, -0.8, -1.3).append(Transformation.scale(0.2, 0.2, 0.2));
+
+		Transformation smallSphereTransformation = Transformation.translate(-0.7, -0.8, -1.3)
+				.append(Transformation.scale(0.2, 0.2, 0.2));
 		SVMatte smallSphereColor = new SVMatte(new ConstantColor(new RGBColor(0.1, 0.7, 0.1)));
 		smallSphereColor.setKA(0.0);
 		smallSphereColor.setKD(0.7);
 		world.shapes.add(new Instance(new Sphere(smallSphereColor), true, smallSphereTransformation, smallSphereColor));
-		
-		Transformation bigSphereTransformation = Transformation.translate(0.4, -0.6, -1.6).append(Transformation.scale(0.4, 0.4, 0.4));
-		SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(1,1,1)));
+
+		// -0.6
+		Transformation bigSphereTransformation = Transformation.translate(0.4, 0.5, -1.6)
+				.append(Transformation.scale(0.4, 0.4, 0.4));
+		SVReflective bigSphereReflection = new SVReflective(new ConstantColor(new RGBColor(1, 1, 1)));
+		bigSphereReflection.setKR(1);
+		SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(1, 1, 1)));
 		bigSphereColor.setKA(0.0);
 		bigSphereColor.setKD(0.7);
-		world.shapes.add(new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
+		world.shapes
+				.add(new Instance(new Sphere(bigSphereReflection), true, bigSphereTransformation, bigSphereReflection));
 
 		world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
 				new Vector3d(0, 1, 0), 90);

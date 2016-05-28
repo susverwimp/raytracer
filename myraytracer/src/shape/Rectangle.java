@@ -5,7 +5,6 @@ import math.Point3d;
 import math.Ray;
 import math.Vector3d;
 import sampling.Sample;
-import sampling.Sampler;
 import util.ShadeRec;
 
 public class Rectangle extends GeometricObject {
@@ -18,10 +17,6 @@ public class Rectangle extends GeometricObject {
 	private double aLengthSquared;
 	private double bLengthSquared;
 	
-	private double area;
-	private double invArea;
-	private Sampler sampler;
-	
 	public Rectangle(Point3d p0, Vector3d a, Vector3d b, Vector3d normal, Material material) {
 		this.p0 = p0;
 		this.a=a;
@@ -30,8 +25,7 @@ public class Rectangle extends GeometricObject {
 		this.material = material;
 		aLengthSquared = a.lengthSquared();
 		bLengthSquared = b.lengthSquared();
-		area = (a.length() * b.length());
-		invArea = (1.0 / area);
+		invArea = (1.0 / (a.length() * b.length()));
 	}
 	
 	@Override
@@ -83,17 +77,6 @@ public class Rectangle extends GeometricObject {
 		return true;
 	}
 	
-	public void setSampler(Sampler sampler){
-		this.sampler = sampler;
-	}
-	
-	@Override
-	public Point3d sample(){
-		Sample samplePoint = sampler.getSampleUnitSquare();
-		Point3d result = (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));
-		return result;
-	}
-	
 	@Override
 	public Point3d sample(Sample samplePoint){
 		return (p0.add(a.scale(samplePoint.x)).add(b.scale(samplePoint.y)));
@@ -101,8 +84,8 @@ public class Rectangle extends GeometricObject {
 	
 	@Override
 	public double pdf(ShadeRec shadeRec){
-//		return invArea;
-		return 1.0;
+		return invArea;
+//		return 1.0;
 	}
 	
 	@Override

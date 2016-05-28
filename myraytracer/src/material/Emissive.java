@@ -2,6 +2,7 @@ package material;
 
 import math.RGBColor;
 import util.ShadeRec;
+import world.World;
 
 public class Emissive extends Material {
 
@@ -35,17 +36,20 @@ public class Emissive extends Material {
 		if(shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0){
 			return ce.scale(ls);
 		}
-		return new RGBColor();
+		return World.BACKGROUND_COLOR;
 	}
 
 	@Override
 	public RGBColor pathShade(ShadeRec shadeRec) {
-		return getLE(shadeRec);
+		return ce.scale(ls);
 	}
 
 	@Override
 	public RGBColor hybridPathShade(ShadeRec shadeRec) {
-		return getLE(shadeRec);
+		if(shadeRec.depth == 0 || shadeRec.ray.originatingMaterial instanceof SVReflective){
+			return ce.scale(ls);
+		}
+		return World.BACKGROUND_COLOR;
 	}
 
 }
