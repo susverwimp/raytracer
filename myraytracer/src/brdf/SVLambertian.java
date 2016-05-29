@@ -3,6 +3,7 @@ package brdf;
 import math.Point3d;
 import math.RGBColor;
 import math.Vector3d;
+import sampling.Sample;
 import texture.Texture;
 import util.ShadeRec;
 
@@ -30,7 +31,9 @@ public class SVLambertian extends BRDF {
 		Vector3d v = new Vector3d(0.0034, 1.0, 0.0071).cross(w).normalize();
 		Vector3d u = v.cross(w);
 		
-		Point3d sample = shadeRec.materialSampler.getSampleUnitHemisphere();
+		Sample[] samples = shadeRec.materialSampler.generateSamples(1);
+		Point3d sample = shadeRec.materialSampler.mapSamplesToCosineHemisphere(samples)[0];
+//		Point3d sample = shadeRec.materialSampler.getSampleUnitHemisphere();
 		
 		wi.set(u.scale(sample.x).add(v.scale(sample.y)).add(w.scale(sample.z)).normalize());
 //		shadeRec.pdf = shadeRec.normal.dot(wi) / Math.PI;

@@ -20,7 +20,8 @@ public class AreaLight extends Light {
 	@Override
 	public Vector3d getDirection(ShadeRec shadeRec) {
 		// shadeRec.samplePoint = object.sample();
-		shadeRec.samplePoint = object.sample(shadeRec.arealightSampler.getSampleUnitSquare());
+		shadeRec.samplePoint = object.sample(shadeRec.arealightSampler.generateSamples(1)[0]);
+//		shadeRec.samplePoint = object.sample(shadeRec.arealightSampler.getSampleUnitSquare());
 		shadeRec.lightNormal = object.getNormal(shadeRec.samplePoint);
 		shadeRec.wi = shadeRec.samplePoint.subtract(shadeRec.hitPoint).normalize();
 

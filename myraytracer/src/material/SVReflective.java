@@ -43,7 +43,7 @@ public class SVReflective extends Material {
 		Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
 		reflectedRay.originatingMaterial = this;
 		RGBColor.add(fr.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
-				shadeRec.materialSampler, shadeRec.depth + 1)).scale(shadeRec.normal.dot(wi)), L);
+				shadeRec.materialSampler, shadeRec.depth + 1)).scale(shadeRec.normal.dot(wi) / shadeRec.pdf), L);
 
 		return L;
 	}

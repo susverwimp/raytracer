@@ -17,10 +17,11 @@ public class SVPerfectSpecular extends BRDF {
 	@Override
 	public RGBColor sampleF(ShadeRec shadeRec, Vector3d wi, Vector3d wo) {
 		double nDotWo = shadeRec.normal.dot(wo);
-		Vector3d v = shadeRec.normal.scale(2).scale(nDotWo);
+		Vector3d v = shadeRec.normal.scale(2 * nDotWo);
 		wi.set(wo.scale(-1).add(v));
+		shadeRec.pdf = Math.abs(shadeRec.normal.dot(wi));
 		
-		return cr.getColor(shadeRec).scale(kr / Math.abs(shadeRec.normal.dot(wi)));
+		return cr.getColor(shadeRec).scale(kr);
 	}
 
 }

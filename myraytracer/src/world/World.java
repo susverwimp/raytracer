@@ -44,9 +44,9 @@ public class World {
 
 	public Camera camera;
 	public Tracer tracer;
-	public static final int MAX_BOUNCES = 4;
-	public static final int SAMPLES_PER_PIXEL = 100;
-	public static final int BRANCHING_FACTOR = 1;
+	public static final int MAX_BOUNCES = 5;
+	public static final int SAMPLES_PER_PIXEL = 256;
+	public static final int BRANCHING_FACTOR = 2;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
 	public static final int SHOW_BOUNCE = -1;
 	public Light ambient = new Ambient();
@@ -80,7 +80,7 @@ public class World {
 		} else
 			panel = null;
 		
-		WorldBuilder.build(WorldBuilder.CAUSTICS_HYBRID_PATH_TRACING, width, height, this);
+		WorldBuilder.build(WorldBuilder.CORNELL_BOX_HYBRID_PATH_TRACING, width, height, this);
 	}
 
 	public void renderScene() {
@@ -110,36 +110,42 @@ public class World {
 							if(tracer instanceof AreaLighting)
 								arealightSampler = new Regular();
 							else if(tracer instanceof PathTracer || tracer instanceof HybridPathTracing){
-								int totalSamples = 0;
-								if(BRANCHING_FACTOR <= 1)
-									totalSamples = MAX_BOUNCES + 1;
-								else
-									totalSamples = (int)((Math.pow(BRANCHING_FACTOR,(MAX_BOUNCES+1))-1) / (BRANCHING_FACTOR-1))-1;
+//								int totalSamples = 0;
+//								if(BRANCHING_FACTOR <= 1)
+//									totalSamples = MAX_BOUNCES + 1;
+//								else
+//									totalSamples = (int)((Math.pow(BRANCHING_FACTOR,(MAX_BOUNCES+1))-1) / (BRANCHING_FACTOR-1))-1;
+
+								materialSampler = new PureRandom(tile.xStart + tile.getWidth() * tile.yStart);
+//								materialSampler = new PureRandom(totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
+//								materialSampler.mapSamplesToCosineHemisphere();
 								
-								materialSampler = new PureRandom(totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
-								materialSampler.mapSamplesToCosineHemisphere();
 								if(tracer instanceof HybridPathTracing){
-									arealightSampler = new PureRandom(totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
-									arealightSampler.mapSamplesToCosineHemisphere();
+									arealightSampler = new PureRandom(tile.xStart + tile.getWidth() * tile.yStart);
+//									arealightSampler = new PureRandom(totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
 								}
 							}
 						}else{
-							pixelSampler = new Jittered(SAMPLES_PER_PIXEL, tile.getWidth() * tile.getHeight(),  tile.xStart + tile.getWidth() * tile.yStart);
+//							pixelSampler = new Jittered(SAMPLES_PER_PIXEL, tile.getWidth() * tile.getHeight(),  tile.xStart + tile.getWidth() * tile.yStart);
+							pixelSampler = new Jittered(tile.xStart + tile.getWidth() * tile.yStart);
 							if(tracer instanceof AreaLighting){
-								arealightSampler = new Jittered(SAMPLES_PER_PIXEL, tile.getWidth() * tile.getHeight() * lights.size(), tile.xStart + tile.getWidth() * tile.yStart);
-								arealightSampler.shuffleSamples();
+								arealightSampler = new PureRandom(tile.xStart + tile.getWidth() * tile.yStart);
+//								arealightSampler = new Jittered(SAMPLES_PER_PIXEL, tile.getWidth() * tile.getHeight() * lights.size(), tile.xStart + tile.getWidth() * tile.yStart);
+//								arealightSampler.shuffleSamples();
 							}else if(tracer instanceof PathTracer || tracer instanceof HybridPathTracing){
-								int totalSamples = 0;
-								if(BRANCHING_FACTOR <= 1)
-									totalSamples = MAX_BOUNCES + 1;
-								else
-									totalSamples = (int)((Math.pow(BRANCHING_FACTOR,(MAX_BOUNCES+1))-1) / (BRANCHING_FACTOR-1))-1;
+//								int totalSamples = 0;
+//								if(BRANCHING_FACTOR <= 1)
+//									totalSamples = MAX_BOUNCES + 1;
+//								else
+//									totalSamples = (int)((Math.pow(BRANCHING_FACTOR,(MAX_BOUNCES+1))-1) / (BRANCHING_FACTOR-1))-1;
 								
-								materialSampler = new PureRandom(SAMPLES_PER_PIXEL * totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
-								materialSampler.mapSamplesToCosineHemisphere();
+//								System.out.println(SAMPLES_PER_PIXEL * totalSamples * tile.getWidth() * tile.getHeight());
+								materialSampler = new PureRandom(tile.xStart + tile.getWidth() * tile.yStart);
+//								materialSampler = new PureRandom(SAMPLES_PER_PIXEL * totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
+//								materialSampler.mapSamplesToCosineHemisphere();
 								if(tracer instanceof HybridPathTracing){
-									arealightSampler = new PureRandom(SAMPLES_PER_PIXEL * totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
-									arealightSampler.mapSamplesToCosineHemisphere();
+									arealightSampler = new PureRandom(tile.xStart + tile.getWidth() * tile.yStart);
+//									arealightSampler = new PureRandom(SAMPLES_PER_PIXEL * totalSamples, tile.getWidth() * tile.getHeight(), tile.xStart + tile.getWidth() * tile.yStart);
 								}
 							}
 						}
@@ -147,19 +153,17 @@ public class World {
 						for (int y = tile.yStart; y < tile.yEnd; ++y) {
 							for (int x = tile.xStart; x < tile.xEnd; ++x) {
 								RGBColor color = new RGBColor();
-
+								Sample[] samples = pixelSampler.generateSamples(SAMPLES_PER_PIXEL);
 								for (int i = 0; i < SAMPLES_PER_PIXEL; i++) {
 									// get sample of sampler
-									Sample sample = pixelSampler.getSampleUnitSquare();
+//									Sample sample = pixelSampler.getSampleUnitSquare();
+									Sample sample = samples[i];
 									sample.x += x;
 									sample.y += y;
 									// create a ray through the center of the
 									// pixel.
 									Ray ray = camera.generateRay(sample);
 
-									if(sample.x == 500.5 && sample.y == 490.5){
-										System.out.println("test");
-									}
 									// add to totalcolor
 									RGBColor.add(tracer.traceRay(ray, arealightSampler, materialSampler, 0), color);
 								}

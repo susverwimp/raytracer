@@ -88,7 +88,7 @@ public class SVMatte extends Material {
 			// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
 			// shadeRec.pdf))), result);
 			RGBColor.add((f.scale(
-					shadeRec.world.tracer.traceRay(reflectedRay, null, shadeRec.materialSampler, shadeRec.depth + 1))),
+					shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler, shadeRec.materialSampler, shadeRec.depth + 1))),
 					result);
 		}
 
@@ -153,24 +153,12 @@ public class SVMatte extends Material {
 
 	@Override
 	public RGBColor hybridPathShade(ShadeRec shadeRec) {
+		
 		RGBColor L = new RGBColor();
-		Vector3d wo = shadeRec.ray.direction.scale(-1);
 
 		// calculate indirect radiance
-		RGBColor indirectRadiance = new RGBColor();
-		for (int i = 0; i < World.BRANCHING_FACTOR; i++) {
-			Vector3d wi = new Vector3d();
-			RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
-			// double nDotWi = shadeRec.normal.dot(wi);
-			Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
-			// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
-			// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
-			// shadeRec.pdf))), result);
-			RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
-					shadeRec.materialSampler, shadeRec.depth + 1))), indirectRadiance);
-		}
-		RGBColor.scale(1.0 / (World.BRANCHING_FACTOR), indirectRadiance);
-
+		RGBColor indirectRadiance = pathShade(shadeRec);
+		
 		// calculate direct radiance
 		RGBColor directRadiance = areaLightShade(shadeRec);
 
