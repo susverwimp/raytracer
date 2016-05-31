@@ -66,7 +66,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -98,7 +98,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -132,7 +132,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -158,6 +158,9 @@ public class WorldBuilder {
 
 			Transformation bigSphereTransformation = Transformation.translate(0.4, 0.5, -1.6)
 					.append(Transformation.scale(0.4, 0.4, 0.4));
+			
+//			SVReflective bigSphereReflection = new SVReflective(new ConstantColor(new RGBColor(1, 1, 1)));
+//			bigSphereReflection.setKR(1);
 			SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(1, 1, 1)));
 			bigSphereColor.setKA(0.0);
 			bigSphereColor.setKD(0.7);
@@ -165,7 +168,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -196,7 +199,7 @@ public class WorldBuilder {
 
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -214,7 +217,7 @@ public class WorldBuilder {
 		} else if (scene.equals(CAUSTICS_PATH_TRACING)) {
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.3, -1.5), new Vector3d(0, 0, 0.1),
@@ -274,7 +277,7 @@ public class WorldBuilder {
 		} else if (scene.equals(CAUSTICS_HYBRID_PATH_TRACING)) {
 			// create light
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(1.0);
+			emissive.setPower(1.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.3, -1.5), new Vector3d(0, 0, 0.1),
@@ -365,7 +368,7 @@ public class WorldBuilder {
 			world.shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(10.0);
+			emissive.setPower(10.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
@@ -408,7 +411,7 @@ public class WorldBuilder {
 			world.shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), checkerMatte));
 
 			Emissive emissive = new Emissive();
-			emissive.scaleRadiance(10.0);
+			emissive.setPower(10.0);
 			emissive.setCE(1, 1, 1);
 
 			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),

@@ -6,14 +6,14 @@ import world.World;
 
 public class Emissive extends Material {
 
-	public double ls;
+	public double p;
 	public RGBColor ce = new RGBColor();
 	
 	public Emissive(){
 	}
 	
-	public void scaleRadiance(double ls){
-		this.ls = ls;
+	public void setPower(double p){
+		this.p = p;
 	}
 	
 	public void setCE(double r, double g, double b){
@@ -23,7 +23,7 @@ public class Emissive extends Material {
 	}
 	
 	public RGBColor getLE(ShadeRec shadeRec){
-		return ce.scale(ls);
+		return ce.scale(p / Math.PI);
 	}
 	
 	@Override
@@ -34,21 +34,24 @@ public class Emissive extends Material {
 	@Override
 	public RGBColor areaLightShade(ShadeRec shadeRec) {
 		if(shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0){
-			return ce.scale(ls);
+			return ce.scale(p);
 		}
 		return World.BACKGROUND_COLOR;
 	}
 
 	@Override
 	public RGBColor pathShade(ShadeRec shadeRec) {
-		return ce.scale(ls);
+		if(shadeRec.depth == World.SHOW_BOUNCE || World.SHOW_BOUNCE == -1)
+			if(shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0)
+				return ce.scale(p);
+		return World.BACKGROUND_COLOR;
 	}
 
 	@Override
 	public RGBColor hybridPathShade(ShadeRec shadeRec) {
-		if(shadeRec.depth == 0 || shadeRec.ray.originatingMaterial instanceof SVReflective){
-			return ce.scale(ls);
-		}
+		if(shadeRec.depth == World.SHOW_BOUNCE || World.SHOW_BOUNCE == -1)
+			if(shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0 && (shadeRec.depth == 0 || shadeRec.ray.originatingMaterial instanceof SVReflective))
+				return ce.scale(p);
 		return World.BACKGROUND_COLOR;
 	}
 

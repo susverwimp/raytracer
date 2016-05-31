@@ -6,6 +6,7 @@ import math.Ray;
 import math.Vector3d;
 import shape.GeometricObject;
 import util.ShadeRec;
+import world.World;
 
 public class AreaLight extends Light {
 
@@ -33,7 +34,7 @@ public class AreaLight extends Light {
 		double nDotD = shadeRec.lightNormal.scale(-1).dot(shadeRec.wi);
 		if (nDotD > 0.0)
 			return material.getLE(shadeRec).scale(object.invArea);
-		return new RGBColor();
+		return World.BACKGROUND_COLOR;
 	}
 
 	@Override
