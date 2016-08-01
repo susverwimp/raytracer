@@ -44,8 +44,8 @@ public class World {
 
 	public Camera camera;
 	public Tracer tracer;
-	public static final int MAX_BOUNCES = 10;
-	public static final int SAMPLES_PER_PIXEL = 16;
+	public static final int MAX_BOUNCES = 2;
+	public static final int SAMPLES_PER_PIXEL = 100;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
 	public static final int SHOW_BOUNCE = -1;
@@ -80,7 +80,7 @@ public class World {
 		} else
 			panel = null;
 		
-		WorldBuilder.build(WorldBuilder.CORNELL_BOX_AREALIGHT_TRACING, width, height, this);
+		WorldBuilder.build(WorldBuilder.CORNELL_BOX_HYBRID_PATH_TRACING, width, height, this);
 	}
 
 	public void renderScene() {
