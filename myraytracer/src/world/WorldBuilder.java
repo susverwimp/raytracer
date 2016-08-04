@@ -64,17 +64,7 @@ public class WorldBuilder {
 			world.shapes.add(
 					new Instance(new Sphere(bigSphereReflection), true, bigSphere2Transformation, bigSphereReflection));
 
-			// create light
-			Emissive emissive = new Emissive();
-			emissive.setPower(1.0);
-			emissive.setCE(1, 1, 1);
-
-			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
-					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
-			lightRectangle.setShadows(true);
-			world.shapes.add(lightRectangle);
-
-			world.lights.add(new AreaLight(lightRectangle));
+			createCornellBoxLight(1, world);
 
 			world.tracer = new HybridPathTracing(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
@@ -96,17 +86,7 @@ public class WorldBuilder {
 			world.shapes.add(
 					new Instance(new Sphere(bigSphereReflection), true, bigSphere2Transformation, bigSphereReflection));
 
-			// create light
-			Emissive emissive = new Emissive();
-			emissive.setPower(1.0);
-			emissive.setCE(1, 1, 1);
-
-			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
-					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
-			lightRectangle.setShadows(true);
-			world.shapes.add(lightRectangle);
-
-			world.lights.add(new AreaLight(lightRectangle));
+			createCornellBoxLight(1, world);
 
 			world.tracer = new PathTracer(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
@@ -130,17 +110,7 @@ public class WorldBuilder {
 			bigSphereColor.setKD(0.7);
 			world.shapes.add(new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
 
-			// create light
-			Emissive emissive = new Emissive();
-			emissive.setPower(1.0);
-			emissive.setCE(1, 1, 1);
-
-			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
-					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
-			lightRectangle.setShadows(true);
-			world.shapes.add(lightRectangle);
-
-			world.lights.add(new AreaLight(lightRectangle));
+			createCornellBoxLight(1, world);
 
 			world.tracer = new HybridPathTracing(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
@@ -158,23 +128,16 @@ public class WorldBuilder {
 
 			Transformation bigSphereTransformation = Transformation.translate(0.4, 0.5, -1.6)
 					.append(Transformation.scale(0.4, 0.4, 0.4));
-			
-//			SVReflective bigSphereReflection = new SVReflective(new ConstantColor(new RGBColor(1, 1, 1)));
-//			bigSphereReflection.setKR(1);
+
+			// SVReflective bigSphereReflection = new SVReflective(new
+			// ConstantColor(new RGBColor(1, 1, 1)));
+			// bigSphereReflection.setKR(1);
 			SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(1, 1, 1)));
 			bigSphereColor.setKA(0.0);
 			bigSphereColor.setKD(0.7);
 			world.shapes.add(new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
 
-			// create light
-			Emissive emissive = new Emissive();
-			emissive.setPower(1.0);
-			emissive.setCE(1, 1, 1);
-
-			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
-					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
-			lightRectangle.setShadows(true);
-			world.shapes.add(lightRectangle);
+			createCornellBoxLight(1, world);
 
 			world.tracer = new PathTracer(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
@@ -197,19 +160,7 @@ public class WorldBuilder {
 			bigSphereColor.setKD(0.7);
 			world.shapes.add(new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
 
-			// create light
-			Emissive emissive = new Emissive();
-			emissive.setPower(1.0);
-			emissive.setCE(1, 1, 1);
-
-			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
-					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
-			lightRectangle.setShadows(true);
-			world.shapes.add(lightRectangle);
-
-			Light arealight = new AreaLight(lightRectangle);
-			arealight.setShadows(true);
-			world.lights.add(arealight);
+			createCornellBoxLight(1, world);
 
 			world.tracer = new AreaLighting(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
@@ -317,12 +268,14 @@ public class WorldBuilder {
 			// reflective ring
 			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(1, 0.5, 0.3)));
 			ringColor.setKR(1);
-//			Transformation ringTransformation = Transformation.translate(0, -0.95, -1.3)
-//					.append(Transformation.scale(0.2, 0.2, 0.2));
+			// Transformation ringTransformation = Transformation.translate(0,
+			// -0.95, -1.3)
+			// .append(Transformation.scale(0.2, 0.2, 0.2));
 			Transformation ringTransformation = Transformation.translate(-0.3, -0.8, -1.3)
 					.append(Transformation.scale(0.2, 0.2, 0.2));
 
-//			world.shapes.add(new Instance(new Sphere(ringColor), true, ringTransformation, ringColor));
+			// world.shapes.add(new Instance(new Sphere(ringColor), true,
+			// ringTransformation, ringColor));
 			BoundingVolume bvh = new BoundingVolume();
 
 			Mesh mesh = OBJFileLoader.loadOBJ("res/models/ring.obj");
@@ -467,6 +420,46 @@ public class WorldBuilder {
 		Rectangle ceiling = new Rectangle(new Point3d(-1, 1, 0), new Vector3d(0, 0, -2), new Vector3d(2, 0, 0),
 				new Vector3d(0, -1, 0), ceilingColor);
 		world.shapes.add(ceiling);
+
+		SVMatte frontWallColor = new SVMatte(new ConstantColor(new RGBColor(0.9, 0.7, 0.8)));
+		frontWallColor.setKA(0.0);
+		frontWallColor.setKD(0.7);
+		Rectangle frontWall = new Rectangle(new Point3d(-1, -1, 0), new Vector3d(0, 2, 0), new Vector3d(2, 0, 0),
+				new Vector3d(0, 0, -1), frontWallColor);
+		world.shapes.add(frontWall);
+	}
+
+	private static void createCornellBoxLight(int num, World world) {
+		if (num == 1) {
+			// create light
+			Emissive emissive = new Emissive();
+			emissive.setPower(1.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle = new Rectangle(new Point3d(-0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
+					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
+			lightRectangle.setShadows(true);
+			world.shapes.add(lightRectangle);
+
+			world.lights.add(new AreaLight(lightRectangle));
+		} else if (num == 2) {
+			// create light
+			Emissive emissive = new Emissive();
+			emissive.setPower(1.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle1 = new Rectangle(new Point3d(-0.6, 0.999, -1.5), new Vector3d(0, 0, 0.4),
+					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
+			world.shapes.add(lightRectangle1);
+
+			world.lights.add(new AreaLight(lightRectangle1));
+			
+			Rectangle lightRectangle2 = new Rectangle(new Point3d(0.2, 0.999, -1.5), new Vector3d(0, 0, 0.4),
+					new Vector3d(0.4, 0, 0), new Vector3d(0, -1, 0), emissive);
+			world.shapes.add(lightRectangle2);
+
+			world.lights.add(new AreaLight(lightRectangle2));
+		}
 	}
 
 }

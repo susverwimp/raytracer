@@ -18,12 +18,12 @@ public class SVLambertian extends BRDF {
 	
 	@Override
 	public RGBColor f(ShadeRec shadeRec, Vector3d wi, Vector3d wo) {
-		return (cd.getColor(shadeRec).scale(kd));
+		return (cd.getColor(shadeRec).scale(kd / Math.PI));
 	}
 
 	@Override
 	public RGBColor rho(ShadeRec shadeRec, Vector3d wo) {
-		return (cd.getColor(shadeRec).scale(kd));
+		return (cd.getColor(shadeRec).scale(kd / Math.PI));
 	}
 	
 	public RGBColor sampleF(ShadeRec shadeRec, Vector3d wo, Vector3d wi){
