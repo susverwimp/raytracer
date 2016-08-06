@@ -82,18 +82,17 @@ public class SVMatte extends Material {
 		for (int i = 0; i < World.BRANCHING_FACTOR; i++) {
 			Vector3d wi = new Vector3d();
 			RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
-			// double nDotWi = shadeRec.normal.dot(wi);
+			double nDotWi = shadeRec.normal.dot(wi);
 			Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
 			// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
 			// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
 			// shadeRec.pdf))), result);
-			if(shadeRec.depth < World.SHOW_BOUNCE - 1){
-				f = new RGBColor(1,1,1);
+			if (shadeRec.depth < World.SHOW_BOUNCE - 1) {
+				f = new RGBColor(1, 1, 1);
 			}
-			if(World.SHOW_BOUNCE == -1 || shadeRec.depth <= World.SHOW_BOUNCE){
-				RGBColor.add((f.scale(
-						shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler, shadeRec.materialSampler, shadeRec.depth + 1))),
-						result);
+			if (World.SHOW_BOUNCE == -1 || shadeRec.depth <= World.SHOW_BOUNCE) {
+				RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
+						shadeRec.materialSampler, shadeRec.depth + 1))).scale(nDotWi / shadeRec.pdf), result);
 			}
 		}
 
@@ -106,74 +105,60 @@ public class SVMatte extends Material {
 
 	// @Override
 	// public RGBColor hybridPathShade(ShadeRec shadeRec) {
-	// Vector3d wo = shadeRec.ray.direction.scale(-1);
-	// RGBColor result = new RGBColor();
 	//
-	// //calculate indirect radiance
-	// RGBColor indirectRadiance = new RGBColor();
-	// for(int i = 0; i < World.BRANCHING_FACTOR; i++){
-	// Vector3d wi = new Vector3d();
-	// RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
-	//// double nDotWi = shadeRec.normal.dot(wi);
-	// Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
-	//// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
-	// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
-	// shadeRec.pdf))), result);
-	// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
-	// shadeRec.materialSampler, shadeRec.depth + 1))), indirectRadiance);
-	// }
-	// RGBColor.scale(1.0 / (World.BRANCHING_FACTOR), indirectRadiance);
+	// RGBColor L = new RGBColor();
 	//
-	// //calculate direct radiance
+	// // calculate indirect radiance
+	// RGBColor indirectRadiance = pathShade(shadeRec);
+	// RGBColor.scale(World.BRANCHING_FACTOR, indirectRadiance);
+	//
+	// // calculate direct radiance
 	// RGBColor directRadiance = new RGBColor();
-	// for(Light light : shadeRec.world.lights){
-	// Vector3d wi = light.getDirection(shadeRec);
-	// RGBColor f = diffuseBRDF.f(shadeRec, wo, wi);
-	// double nDotWi = shadeRec.normal.dot(wi);
-	// if(nDotWi > 0.0){
-	// boolean inShadow = false;
-	// if(light.castShadows){
-	// Ray shadowRay = new Ray(shadeRec.hitPoint, wi);
-	// inShadow = light.inShadow(shadowRay, shadeRec);
-	// }
-	// if(!inShadow){
-	// double lightNormalDotWiLight = shadeRec.lightNormal.scale(-1).dot(wi);
-	// if(lightNormalDotWiLight > 0.0){
-	//// shadeRec.ray = new Ray(shadeRec.hitPoint, wi);
-	//// RGBColor.add(f.scale(((AreaLight)light).object.material.getLE(shadeRec).scale(nDotWi/shadeRec.pdf))
-	// , result);
-	// RGBColor.add(f.scale(((AreaLight)light).object.material.hybridPathShade(shadeRec).scale(nDotWi/Math.PI))
-	// , directRadiance);
-	// }
-	// }
-	// }
-	// }
+	// if(World.SHOW_BOUNCE == -1 || World.SHOW_BOUNCE == shadeRec.depth)
+	// directRadiance = areaLightShade(shadeRec);
 	//
+	// // sum up the total radiance
+	// RGBColor.add(indirectRadiance, L);
+	// RGBColor.add(directRadiance, L);
+	// RGBColor.scale(1.0/(World.BRANCHING_FACTOR + 1), L);
 	//
 	// // get average of the samples
-	// RGBColor.scale(1.0 / (World.BRANCHING_FACTOR +
-	// shadeRec.world.lights.size()), result);
-	// return result;
+	// return L;
 	// }
 
 	@Override
 	public RGBColor hybridPathShade(ShadeRec shadeRec) {
-		
 		RGBColor L = new RGBColor();
 
 		// calculate indirect radiance
-		RGBColor indirectRadiance = pathShade(shadeRec);
-		
+		Vector3d wo = shadeRec.ray.direction.scale(-1);
+		RGBColor indirectRadiance = new RGBColor();
+		for (int i = 0; i < World.BRANCHING_FACTOR; i++) {
+			Vector3d wi = new Vector3d();
+			RGBColor f = diffuseBRDF.sampleF(shadeRec, wo, wi);
+			double nDotWi = shadeRec.normal.dot(wi);
+			Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
+			// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
+			// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
+			// shadeRec.pdf))), result);
+			if (shadeRec.depth < World.SHOW_BOUNCE - 1) {
+				f = new RGBColor(1, 1, 1);
+			}
+			if (World.SHOW_BOUNCE == -1 || shadeRec.depth <= World.SHOW_BOUNCE) {
+				RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
+						shadeRec.materialSampler, shadeRec.depth + 1))).scale(nDotWi / shadeRec.pdf), indirectRadiance);
+			}
+		}
+
 		// calculate direct radiance
 		RGBColor directRadiance = new RGBColor();
-		if(World.SHOW_BOUNCE == -1 || World.SHOW_BOUNCE == shadeRec.depth)
+		if (World.SHOW_BOUNCE == -1 || World.SHOW_BOUNCE == shadeRec.depth)
 			directRadiance = areaLightShade(shadeRec);
 
-		// sum up the total radiance
 		RGBColor.add(indirectRadiance, L);
 		RGBColor.add(directRadiance, L);
+		RGBColor.scale(1.0 / (World.BRANCHING_FACTOR + 1), L);
 
-		// get average of the samples
 		return L;
 	}
 }

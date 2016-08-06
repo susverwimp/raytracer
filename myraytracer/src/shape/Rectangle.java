@@ -1,5 +1,6 @@
 package shape;
 
+import material.Emissive;
 import material.Material;
 import math.Point3d;
 import math.Ray;
@@ -26,6 +27,8 @@ public class Rectangle extends GeometricObject {
 		aLengthSquared = a.lengthSquared();
 		bLengthSquared = b.lengthSquared();
 		invArea = (1.0 / (a.length() * b.length()));
+		if(material instanceof Emissive)
+			((Emissive)material).setObject(this);
 	}
 	
 	@Override
@@ -85,7 +88,6 @@ public class Rectangle extends GeometricObject {
 	@Override
 	public double pdf(ShadeRec shadeRec){
 		return invArea;
-//		return 1.0;
 	}
 	
 	@Override

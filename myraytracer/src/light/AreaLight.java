@@ -33,7 +33,7 @@ public class AreaLight extends Light {
 	public RGBColor L(ShadeRec shadeRec) {
 		double nDotD = shadeRec.lightNormal.scale(-1).dot(shadeRec.wi);
 		if (nDotD > 0.0)
-			return material.getLE(shadeRec).scale(object.invArea);
+			return material.getLE(shadeRec);
 		return World.BACKGROUND_COLOR;
 	}
 
