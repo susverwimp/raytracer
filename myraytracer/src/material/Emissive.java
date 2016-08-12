@@ -20,8 +20,8 @@ public class Emissive extends Material {
 		ce.g = g;
 		ce.b = b;
 	}
-	
-	public void setObject(GeometricObject object){
+
+	public void setObject(GeometricObject object) {
 		this.object = object;
 	}
 
@@ -37,7 +37,7 @@ public class Emissive extends Material {
 	@Override
 	public RGBColor areaLightShade(ShadeRec shadeRec) {
 		if (shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0) {
-//			return ce.scale(p * object.invArea);
+			// return ce.scale(p * object.invArea);
 			return getLE(shadeRec);
 		}
 		return World.BACKGROUND_COLOR;
@@ -46,22 +46,20 @@ public class Emissive extends Material {
 	@Override
 	public RGBColor pathShade(ShadeRec shadeRec) {
 		if (shadeRec.depth == World.SHOW_BOUNCE || World.SHOW_BOUNCE == -1)
-			if (shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0){
-				System.out.println(getLE(shadeRec));
+			if (shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0) {
 				return getLE(shadeRec);
 			}
-//				return ce.scale(p * object.invArea / Math.PI);
+		// return ce.scale(p * object.invArea / Math.PI);
 		return World.BACKGROUND_COLOR;
 	}
 
 	@Override
 	public RGBColor hybridPathShade(ShadeRec shadeRec) {
 		if (shadeRec.depth == World.SHOW_BOUNCE || World.SHOW_BOUNCE == -1)
-				 if(shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) >
-				 0.0 && (shadeRec.depth == 0 ||
-				 shadeRec.ray.originatingMaterial instanceof SVReflective))
-//				return ce.scale(p * object.invArea);
-					 return getLE(shadeRec);
+			if (shadeRec.normal.scale(-1).dot(shadeRec.ray.direction) > 0.0
+					&& (shadeRec.depth == 0 || shadeRec.ray.originatingMaterial instanceof SVReflective))
+				// return ce.scale(p * object.invArea);
+				return getLE(shadeRec);
 		return World.BACKGROUND_COLOR;
 	}
 

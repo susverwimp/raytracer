@@ -150,6 +150,8 @@ public class SVMatte extends Material {
 			}
 		}
 
+		RGBColor.scale(1.0 / World.BRANCHING_FACTOR, indirectRadiance);
+		
 		// calculate direct radiance
 		RGBColor directRadiance = new RGBColor();
 		if (World.SHOW_BOUNCE == -1 || World.SHOW_BOUNCE == shadeRec.depth)
@@ -157,7 +159,7 @@ public class SVMatte extends Material {
 
 		RGBColor.add(indirectRadiance, L);
 		RGBColor.add(directRadiance, L);
-		RGBColor.scale(1.0 / (World.BRANCHING_FACTOR + 1), L);
+//		RGBColor.scale(1.0 / (World.BRANCHING_FACTOR + 1), L);
 
 		return L;
 	}
