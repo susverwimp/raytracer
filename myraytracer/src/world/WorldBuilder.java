@@ -35,6 +35,7 @@ public class WorldBuilder {
 
 	public static final String CORNELL_BOX_REFLECTIVE_HYBRID_PATH_TRACING = "cornellbox-reflective-hybridpathtracing";
 	public static final String CORNELL_BOX_REFLECTIVE_PATH_TRACING = "cornellbox-reflective-pathtracing";
+	public static final String CORNELL_BOX_OTHER_VIEW_PATH_TRACING = "cornellbox-other-view-pathtracing";
 	public static final String CORNELL_BOX_HYBRID_PATH_TRACING = "cornellbox-hybridpathtracing";
 	public static final String CORNELL_BOX_PATH_TRACING = "cornellbox-pathtracing";
 	public static final String CORNELL_BOX_AREALIGHT_TRACING = "cornellbox-arealighting";
@@ -92,6 +93,28 @@ public class WorldBuilder {
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
 					new Vector3d(0, 1, 0), 60);
 
+		} else if (scene.equals(CORNELL_BOX_OTHER_VIEW_PATH_TRACING)) {
+			createCornellBoxWithoutLight(width, height, world);
+
+			Transformation bigSphereTransformation = Transformation.translate(-0.4, -0.5, -1.6)
+					.append(Transformation.scale(0.4, 0.4, 0.4));
+			SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(0.3, 0.8, 0.4)));
+			bigSphereColor.setKD(0.7);
+			world.shapes.add(
+					new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
+
+			Transformation bigSphere2Transformation = Transformation.translate(0.4, -0.5, -1.6)
+					.append(Transformation.scale(0.5, 0.5, 0.5)).append(Transformation.scale(0.4, 0.4, 0.4));
+			SVMatte bigSphereColor2 = new SVMatte(new ConstantColor(new RGBColor(0.3, 0.6, 0.8)));
+			bigSphereColor2.setKD(0.7);
+			world.shapes.add(
+					new Instance(new Sphere(bigSphereColor2), true, bigSphere2Transformation, bigSphereColor2));
+
+			createCornellBoxLight(1, big, world);
+
+			world.tracer = new PathTracer(world);
+			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
+					new Vector3d(0, 1, 0), 60);
 		} else if (scene.equals(CORNELL_BOX_HYBRID_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 

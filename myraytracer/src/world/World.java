@@ -45,7 +45,7 @@ public class World {
 	public Camera camera;
 	public Tracer tracer;
 	public static final int MAX_BOUNCES = 10;
-	public static final int SAMPLES_PER_PIXEL = 14400;
+	public static final int SAMPLES_PER_PIXEL = 2916;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
 	public static final int SHOW_BOUNCE = -1;
@@ -80,7 +80,7 @@ public class World {
 		} else
 			panel = null;
 		
-		WorldBuilder.build(WorldBuilder.CORNELL_BOX_PATH_TRACING, width, height, false, this);
+		WorldBuilder.build(WorldBuilder.CORNELL_BOX_PATH_TRACING, width, height, true, this);
 	}
 
 	public void renderScene() {
@@ -312,10 +312,10 @@ public class World {
 		return shadeRec;
 	}
 
-	public void exportResult(double sensitivity, double gamma) {
+	public void exportResult(double sensitivity, double gamma, String name) {
 		BufferedImage result = buffer.toBufferedImage(sensitivity, gamma);
 		try {
-			ImageIO.write(result, "png", new File("output.png"));
+			ImageIO.write(result, "png", new File(name + ".png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

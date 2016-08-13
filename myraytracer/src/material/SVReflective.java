@@ -39,11 +39,14 @@ public class SVReflective extends Material {
 
 		Vector3d wo = shadeRec.ray.direction.scale(-1);
 		Vector3d wi = new Vector3d();
-		RGBColor fr = reflectiveBRDF.sampleF(shadeRec, wi, wo);
+		RGBColor f = reflectiveBRDF.sampleF(shadeRec, wi, wo);
+		double nDotWi = shadeRec.normal.dot(wi);
 		Ray reflectedRay = new Ray(shadeRec.hitPoint, wi);
 		reflectedRay.originatingMaterial = this;
-		RGBColor.add(fr.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
-				shadeRec.materialSampler, shadeRec.depth + 1)).scale(shadeRec.normal.dot(wi) / shadeRec.pdf), L);
+		RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
+				shadeRec.materialSampler, shadeRec.depth + 1))).scale(nDotWi / shadeRec.pdf), L);
+//		RGBColor.add(f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
+//				shadeRec.materialSampler, shadeRec.depth + 1)).scale(shadeRec.normal.dot(wi) / shadeRec.pdf), L);
 
 		return L;
 	}

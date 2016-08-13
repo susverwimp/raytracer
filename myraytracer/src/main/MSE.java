@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 public class MSE {
 
 	public static void main(String[] args) throws IOException {
-		BufferedImage image1 = ImageIO.read(new File("res/renders/cornell/hybrid_cornell_5_256_2.png"));
-		BufferedImage image2 = ImageIO.read(new File("res/renders/cornell/hybrid_cornell_10_6400_1.png"));
+		BufferedImage image1 = ImageIO.read(new File("res/renders/cornell/path_cornell_2916_10_1_big.png"));
+		BufferedImage image2 = ImageIO.read(new File("res/renders/cornell/path_cornell_14400_10_1_big.png"));
 		int width = image1.getWidth();
 		int height = image1.getHeight();
 		double mse;
