@@ -11,6 +11,7 @@ import light.AreaLight;
 import light.Light;
 import loader.OBJFileLoader;
 import material.Emissive;
+import material.Material;
 import material.SVReflective;
 import material.SVMatte;
 import math.Point3d;
@@ -41,6 +42,7 @@ public class WorldBuilder {
 	public static final String CORNELL_BOX_AREALIGHT_TRACING = "cornellbox-arealighting";
 	public static final String CAUSTICS_PATH_TRACING = "caustics_pathtracing";
 	public static final String CAUSTICS_HYBRID_PATH_TRACING = "caustics_hybridpathtracing";
+	public static final String CAUSTICS_HYBRID_PATH_TRACING2 = "caustics_hybridpathtracing2";
 	public static final String APPLE_WITH_FLOOR_WITH_BHV = "apple_with_floor_with_bhv";
 	public static final String APPLE_WITH_FLOOR_WITHOUT_BHV = "apple_with_floor_without_bhv";
 
@@ -71,6 +73,8 @@ public class WorldBuilder {
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
 					new Vector3d(0, 1, 0), 60);
 
+			World.name = "hybrid_cornell_reflective_";
+
 		} else if (scene.equals(CORNELL_BOX_REFLECTIVE_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
@@ -93,6 +97,8 @@ public class WorldBuilder {
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
 					new Vector3d(0, 1, 0), 60);
 
+			World.name = "path_cornell_reflective_";
+
 		} else if (scene.equals(CORNELL_BOX_OTHER_VIEW_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
@@ -100,21 +106,22 @@ public class WorldBuilder {
 					.append(Transformation.scale(0.4, 0.4, 0.4));
 			SVMatte bigSphereColor = new SVMatte(new ConstantColor(new RGBColor(0.3, 0.8, 0.4)));
 			bigSphereColor.setKD(0.7);
-			world.shapes.add(
-					new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
+			world.shapes.add(new Instance(new Sphere(bigSphereColor), true, bigSphereTransformation, bigSphereColor));
 
 			Transformation bigSphere2Transformation = Transformation.translate(0.4, -0.5, -1.6)
 					.append(Transformation.scale(0.5, 0.5, 0.5)).append(Transformation.scale(0.4, 0.4, 0.4));
 			SVMatte bigSphereColor2 = new SVMatte(new ConstantColor(new RGBColor(0.3, 0.6, 0.8)));
 			bigSphereColor2.setKD(0.7);
-			world.shapes.add(
-					new Instance(new Sphere(bigSphereColor2), true, bigSphere2Transformation, bigSphereColor2));
+			world.shapes
+					.add(new Instance(new Sphere(bigSphereColor2), true, bigSphere2Transformation, bigSphereColor2));
 
 			createCornellBoxLight(1, big, world);
 
 			world.tracer = new PathTracer(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(1, 0, 0), new Point3d(-0.4, -0.5, -1.6),
 					new Vector3d(0, 1, 0), 60);
+			World.name = "path_cornell_otherview_";
+
 		} else if (scene.equals(CORNELL_BOX_HYBRID_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
@@ -138,6 +145,8 @@ public class WorldBuilder {
 			world.tracer = new HybridPathTracing(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
 					new Vector3d(0, 1, 0), 90);
+			World.name = "hybrid_cornell_";
+
 		} else if (scene.equals(CORNELL_BOX_PATH_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
@@ -165,6 +174,7 @@ public class WorldBuilder {
 			world.tracer = new PathTracer(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
 					new Vector3d(0, 1, 0), 90);
+			World.name = "path_cornell_";
 		} else if (scene.equals(CORNELL_BOX_AREALIGHT_TRACING)) {
 			createCornellBoxWithoutLight(width, height, world);
 
@@ -188,14 +198,14 @@ public class WorldBuilder {
 			world.tracer = new AreaLighting(world);
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
 					new Vector3d(0, 1, 0), 90);
+			World.name = "area_cornell_";
 		} else if (scene.equals(CAUSTICS_PATH_TRACING)) {
-			// create light
 			Emissive emissive = new Emissive();
 			emissive.setPower(20.0);
 			emissive.setCE(1, 1, 1);
 
-			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.3, -1.5), new Vector3d(0, 0, 0.1),
-					new Vector3d(0.1, -0.1, 0), new Vector3d(-1, -1, 0), emissive);
+			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.4, 1), new Vector3d(0, 0, 0.3),
+					new Vector3d(0.3, -0.3, 0), new Vector3d(0, -1, -1), emissive);
 			lightRectangle.setShadows(true);
 			world.shapes.add(lightRectangle);
 
@@ -203,39 +213,13 @@ public class WorldBuilder {
 			arealight.setShadows(true);
 			world.lights.add(arealight);
 
-			BufferedImage image;
-			try {
-				Transformation floorTransformation = Transformation.translate(0, -1, -1.3);
-				image = ImageIO.read(new File("res/textures/wood_texture.jpg"));
-				SVMatte floorColor = new SVMatte(new ImageTexture(image.getWidth(), image.getHeight(), image, null));
-				floorColor.setKA(0.0);
-				floorColor.setKD(0.7);
-				BoundingVolume bvh = new BoundingVolume();
-
-				Mesh mesh = OBJFileLoader.loadOBJ("res/models/plane.obj");
-				for (int i = 0; i < mesh.indices.length; i += 3) {
-					bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1],
-							mesh.indices[i + 2], floorColor));
-				}
-				bvh.calculateHierarchy();
-				world.shapes.add(new Instance(bvh, true, floorTransformation, null));
-
-				// Rectangle floor = new Rectangle(new Point3d(-1, -1, 0), new
-				// Vector3d(0, 0, -2), new Vector3d(2, 0, 0),
-				// new Vector3d(0, 1, 0), floorColor);
-				// world.shapes.add(floor);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// reflective ring
-			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(0.7, 1, 0.6)));
-			ringColor.setKR(1);
-			Transformation ringTransformation = Transformation.translate(0, -0.95, -1.3)
-					.append(Transformation.scale(0.2, 0.2, 0.2));
-
 			BoundingVolume bvh = new BoundingVolume();
-
+//
+//			// reflective ring
+			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(0.7, 0.3, 0.2)));
+			ringColor.setKR(1);
+			Transformation ringTransformation = Transformation.translate(0, -0.9, -1)
+					.append(Transformation.scale(1, 0.5, 1));
 			Mesh mesh = OBJFileLoader.loadOBJ("res/models/ring.obj");
 			for (int i = 0; i < mesh.indices.length; i += 3) {
 				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
@@ -243,11 +227,17 @@ public class WorldBuilder {
 			}
 			bvh.calculateHierarchy();
 			world.shapes.add(new Instance(bvh, true, ringTransformation, null));
-
+			
+			SVMatte floorColor = new SVMatte(new ConstantColor(new RGBColor(0.8, 0.8, 0.2)));
+			floorColor.setKD(0.8);
+			world.shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), floorColor));
+			
 			world.tracer = new PathTracer(world);
 
-			world.camera = new PerspectiveCamera(width, height, new Point3d(0.2, -0.6, -1.3),
-					new Point3d(0, -0.95, -1.3), new Vector3d(0, 1, 0), 90);
+			world.camera = new PerspectiveCamera(width, height, new Point3d(-0.3, 0.3, 1.5),
+					new Vector3d(0.1, -0.4, -1), new Vector3d(0, 1, 0), 70);
+
+			World.name = "path_caustics_";
 		} else if (scene.equals(CAUSTICS_HYBRID_PATH_TRACING)) {
 			// create light
 			Emissive emissive = new Emissive();
@@ -308,6 +298,8 @@ public class WorldBuilder {
 
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0.2, -0.6, -1.3),
 					new Point3d(0, -0.95, -1.3), new Vector3d(0, 1, 0), 90);
+
+			World.name = "hybrid_caustics_";
 		} else if (scene.equals(APPLE_WITH_FLOOR_WITH_BHV)) {
 			try {
 				Transformation appleTransformation = Transformation.translate(0, -1, -2)
@@ -398,7 +390,46 @@ public class WorldBuilder {
 
 			world.camera = new PerspectiveCamera(width, height, new Point3d(0, 0, 0), new Point3d(0, 0, -1),
 					new Vector3d(0, 1, 0), 90);
-		}
+		} else if (scene.equals(CAUSTICS_HYBRID_PATH_TRACING2)) {
+			Emissive emissive = new Emissive();
+			emissive.setPower(20.0);
+			emissive.setCE(1, 1, 1);
+
+			Rectangle lightRectangle = new Rectangle(new Point3d(0.3, 0.4, 1), new Vector3d(0, 0, 0.3),
+					new Vector3d(0.3, -0.3, 0), new Vector3d(0, -1, -1), emissive);
+			lightRectangle.setShadows(true);
+			world.shapes.add(lightRectangle);
+
+			Light arealight = new AreaLight(lightRectangle);
+			arealight.setShadows(true);
+			world.lights.add(arealight);
+
+			BoundingVolume bvh = new BoundingVolume();
+//
+//			// reflective ring
+			SVReflective ringColor = new SVReflective(new ConstantColor(new RGBColor(0.7, 0.3, 0.2)));
+			ringColor.setKR(1);
+			Transformation ringTransformation = Transformation.translate(0, -0.9, -1)
+					.append(Transformation.scale(1, 0.5, 1));
+			Mesh mesh = OBJFileLoader.loadOBJ("res/models/ring.obj");
+			for (int i = 0; i < mesh.indices.length; i += 3) {
+				bvh.addObject(new SmoothUVMeshTriangle(mesh, mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2],
+						ringColor));
+			}
+			bvh.calculateHierarchy();
+			world.shapes.add(new Instance(bvh, true, ringTransformation, null));
+			
+			SVMatte floorColor = new SVMatte(new ConstantColor(new RGBColor(0.8, 0.8, 0.2)));
+			floorColor.setKD(0.8);
+			world.shapes.add(new Plane(new Point3d(0, -1, 0), new Vector3d(0, 1, 0), floorColor));
+			
+			world.tracer = new HybridPathTracing(world);
+
+			world.camera = new PerspectiveCamera(width, height, new Point3d(-0.3, 0.3, 1.5),
+					new Vector3d(0.1, -0.4, -1), new Vector3d(0, 1, 0), 70);
+
+			World.name = "hybrid_caustics_";
+		} 
 
 	}
 

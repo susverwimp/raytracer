@@ -44,20 +44,21 @@ public class World {
 
 	public Camera camera;
 	public Tracer tracer;
-	public static final int MAX_BOUNCES = 10;
-	public static final int SAMPLES_PER_PIXEL = 2916;
+	public static final int MAX_BOUNCES = 5;
+	public static final int SAMPLES_PER_PIXEL = 256;
 	public static final int BRANCHING_FACTOR = 1;
 	public static final RGBColor BACKGROUND_COLOR = new RGBColor();
-	public static final int SHOW_BOUNCE = -1;
+	public static final int SHOW_BOUNCE = 5;
 	public Light ambient = new Ambient();
 	public final List<GeometricObject> shapes = new ArrayList<>();
 	public final List<Light> lights = new ArrayList<>();
 
 	private static final RGBColor falseColor1 = new RGBColor(0, 0, 0);
 	private static final RGBColor falseColor2 = new RGBColor(1, 1, 1);
-
+	
 	private static final boolean OUT_OF_GAMUT = true;
 	
+	public static String name = "";
 
 	public World(int width, int height, double sensitivity, double gamma, boolean gui) throws IOException {
 		/**********************************************************************
@@ -80,7 +81,7 @@ public class World {
 		} else
 			panel = null;
 		
-		WorldBuilder.build(WorldBuilder.CORNELL_BOX_PATH_TRACING, width, height, true, this);
+		WorldBuilder.build(WorldBuilder.CAUSTICS_PATH_TRACING, width, height, false, this);
 	}
 
 	public void renderScene() {
@@ -91,7 +92,7 @@ public class World {
 		final ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
 		// subdivide the buffer in equal sized tiles
-		for (final Tile tile : buffer.subdivide(64,64)) {
+		for (final Tile tile : buffer.subdivide(64, 64)) {
 			// create a thread which renders the specific tile
 			Thread thread = new Thread() {
 				/*
@@ -312,7 +313,8 @@ public class World {
 		return shadeRec;
 	}
 
-	public void exportResult(double sensitivity, double gamma, String name) {
+	public void exportResult(double sensitivity, double gamma) {
+		name += SAMPLES_PER_PIXEL + "_" + MAX_BOUNCES + "_" + BRANCHING_FACTOR + "_" + "small_"+ SHOW_BOUNCE;
 		BufferedImage result = buffer.toBufferedImage(sensitivity, gamma);
 		try {
 			ImageIO.write(result, "png", new File(name + ".png"));

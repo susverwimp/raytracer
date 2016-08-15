@@ -24,7 +24,6 @@ public class Renderer {
 		double gamma = 2.2;
 		boolean gui = true;
 		boolean falseColor = false;
-		String name = "path_cornell_2916_10_1_big";
 
 		/**********************************************************************
 		 * Parse the command line arguments
@@ -92,6 +91,6 @@ public class Renderer {
 		 * Export the result
 		 *********************************************************************/
 
-		world.exportResult(sensitivity, gamma, name);
+		world.exportResult(sensitivity, gamma);
 	}
 }

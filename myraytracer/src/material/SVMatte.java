@@ -87,9 +87,9 @@ public class SVMatte extends Material {
 			// RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay,
 			// shadeRec.materialSampler, shadeRec.depth + 1).scale(nDotWi /
 			// shadeRec.pdf))), result);
-			if (shadeRec.depth < World.SHOW_BOUNCE - 1) {
-				f = new RGBColor(1, 1, 1);
-			}
+//			if (shadeRec.depth < World.SHOW_BOUNCE - 1) {
+//				f = new RGBColor(1, 1, 1);
+//			}
 			if (World.SHOW_BOUNCE == -1 || shadeRec.depth <= World.SHOW_BOUNCE) {
 				RGBColor.add((f.scale(shadeRec.world.tracer.traceRay(reflectedRay, shadeRec.arealightSampler,
 						shadeRec.materialSampler, shadeRec.depth + 1))).scale(nDotWi / shadeRec.pdf), result);
